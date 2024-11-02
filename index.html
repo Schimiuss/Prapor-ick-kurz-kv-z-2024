@@ -1,0 +1,4052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <style>
+    /* Add basic styling */
+    body { 
+      font-family: Arial, sans-serif; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      margin: 0; 
+      background-image: url('splnitUkol.jpg'); /* Replace with your image URL */
+      background-size: cover;
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    /* Overlay for opacity */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.5); /* White overlay with 50% opacity */
+      z-index: -1;
+    }
+
+    #quiz-container { 
+      text-align: center; 
+      max-width: 400px; 
+      background-color: rgba(255, 255, 255, 0.9); /* Light background for readability */
+      padding: 20px;
+      border-radius: 8px;
+    }
+    
+    .option { 
+      display: block; 
+      margin: 5px 0; 
+      padding: 10px; 
+      font-size: 16px; 
+      cursor: pointer; 
+    }
+
+    #feedback-container { 
+      margin-top: 10px; 
+      font-weight: bold; 
+    }
+    
+    .correct { 
+      background-color: #d4edda; 
+      color: #155724; 
+    } /* Green for correct answer */
+
+    .incorrect { 
+      background-color: #f8d7da; 
+      color: #721c24; 
+    } /* Red for incorrect answer */
+
+    #summary-container { 
+      margin-top: 20px; 
+      font-weight: bold; 
+    }
+
+    #counters-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="quiz-container">
+    <!-- Counters for question number and score -->
+    <div id="counters-container">
+      <span id="question-counter">Question: 1</span>
+      <span id="point-counter">Points: 0</span>
+    </div>
+    
+    <h2 id="question-container">Question will appear here</h2>
+    <div id="options-container"></div>
+    <div id="feedback-container"></div>
+    <div id="summary-container"></div>
+  </div>
+
+  <script>
+    const quizData = [
+     {
+    "question": "Z hlediska zastávaného služebního místa praporčíky je nejvyšší?",
+    "options": ["Vedoucí praporčík", "Výkonný praporčík", "Vrchní praporčík"],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Nejvyšší praporčická hodnost je?",
+    "options": ["Nadpraporčík", "Štábní praporčík", "Podpraporčík"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Do hodnostního sboru praporčíků nepatří?",
+    "options": ["Rotný", "Rotmistr", "Nadrotmistr"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Kariérové kurzy jsou organizovány ke splnění základních kvalifikačních požadavků pro služební zařazení vojáka z povolání: Jsou určeny? Zaškrtněte dvě správné odpovědi!!!",
+    "options": [
+      "jedná se o kurzy se všeobecnou (vševojskovou) tematikou společnou pro všechny příslušníky daného hodnostního sboru, nebo skupiny hodností",
+      "jedná se o kurzy částečně se všeobecnou (vševojskovou) tematikou společnou pro všechny příslušníky daného hodnostního sboru a částečně odbornou tématikou dle služebního zařazení vojáka",
+      "k získání vědomostí, dovedností a návyků, potřebných k výkonu služby v daném hodnostním sboru, nebo dané skupině hodností"
+    ],
+    "correctAnswers": [0, 2] 
+  },
+  {
+    "question": "Úsek karierové přípravy poddůstojníků a praporčíků („Praporčická škola“) provádí tyto karierové kurzy?",
+    "options": [
+      "poddůstojnický, základní praporčický a vyšší praporčický",
+      "poddůstojnický, základní rotmistrovský a vyšší praporčický",
+      "poddůstojnický, rotmistrovský a základní praporčický"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "„Nejkratší doba výkonu služby v hodnosti“ činí pro hodnost rotmistr?",
+    "options": ["4 roky", "2 roky", "3 roky"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Voják v průběhu služebního poměru vykonává službu?",
+    "options": [
+      "podle místa trvalého pobytu",
+      "podle toho, kde mu určí rekrutační středisko",
+      "podle potřeb České republiky"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Kdy bylo podepsáno příměří mezi Československem a Polskem?",
+    "options": ["26. února 1919", "26. února 1918", "31. ledna 1919"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Která slovenská obec byla vypálena v průběhu SNP a měla největší počet obětí?",
+    "options": ["Tisovec", "Kremnička", "Hronská Důbrava"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Kdo na návrh A. Hitlera byl předkladatelem Mnichovské dohody?",
+    "options": ["Benito Mussolini", "Édouardem Daladierem", "Nevillem Chamberlainem"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Ve kterém městě v bývalé ČSR vypuklo povstání proti okupantům jako první?",
+    "options": ["Humpolec", "Praha", "Přerov"],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Kdy byl vyhlášen protektorát Čechy a Morava?",
+    "options": ["28. března 1939", "11. března 1939", "15. března 1939"],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Do jakého mocenského bloku patřila Osmanská říše (Turecko) a Bulharsko, kdy tam vstoupili a v kterém roce a měsíci byli poraženy?",
+    "options": [
+      "Do bloku ústředních mocností (Trojspolku), Osmanská říše 1913, Bulharsko 1915, byli poraženi v říjnu 1918",
+      "Do bloku ústředních mocností (trojspolku), Osmanská říše 1914, Bulharsko 1915, byli poraženi v září 1918",
+      "Do bloku dohodových mocností (trojspolku), Osmanská říše 1914, Bulharsko 1915, byli poraženi v září 1918"
+    ],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "V kterých zemích vznikly a působily československé dobrovolnické jednotky (legie)?",
+    "options": ["Itálie, Francie, Rusko, Anglie", "Španělsko, Itálie, Rusko, Francie", "Italie, Francie, Rusko, Srbsko"],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Hranici mezi Československem a Německem určila smlouva",
+    "options": ["Trianonská smlouvou ze 4. 6. 1920", "Versailleská smlouva z 28. 6. 1919", "Saint-Germainská smlouva z 10. 9. 1919"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Co bylo hlavním cílem Obrany národa?",
+    "options": ["Obnova ČSR", "Odstranit říšského protektora Reinharda Heydricha", "Odstranit prezidenta Protektorátu Čechy a Morava Dr. Emila Háchu"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Ve které operaci v závěru II. Světové války byla nasazena 1. Čs. samostatná tanková brigáda?",
+    "options": ["Brňenská", "Bratislavská", "Ostravská"],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Které dvě československé letecké jednotky vytvořené ve Velké Británii zasáhly do bojů jako první?",
+    "options": ["310. stíhací peruť, 311. bombardovací peruť", "313. stíhací peruť, 311. bombardovací peruť", "312. stíhací peruť, 313. stíhací peruť"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Která jednotka nesla hlavní tíhu obrany vrcholku Doss Alto?",
+    "options": [
+      "nesl 33. československý jízdní pluk, kterému se po posílení zálohami, úspěšně podařilo nepřítele vypudit ze zákopových pozic a pozice ubránit",
+      "nesl 33. československý střelecký pluk, kterému se po posílení zálohami, neúspěšně podařilo nepřítele vypudit ze zákopových pozic a pozice neobsadili",
+      "nesl 33. československý střelecký pluk, kterému se po posílení zálohami, úspěšně podařilo nepřítele vypudit ze zákopových pozic a pozice ubránit"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Co se stalo u města Darney 30. června 1918 a jaký význam tento datum má pro příslušníky AČR?",
+    "options": [
+      "Za přítomnosti Edvarda Beneše a francouzského prezidenta Raymonda Poincarého konala velká vojenská slavnost spojená s přísahou příslušníků 22. čs. střeleckého pluku, který zde převzal bojovou zástavu. Den pozemních sil",
+      "Za přítomnosti Edvarda Beneše a francouzského prezidenta Raymonda Poincarého konala velká vojenská slavnost spojená s přísahou příslušníků 21. čs. střeleckého pluku, který zde převzal bojovou zástavu. Den ozbrojených sil",
+      "Za přítomnosti Edvarda Beneše a francouzského prezidenta Raymonda Poincarého konala velká vojenská slavnost spojená s přísahou příslušníků 21. čs. jízdního pluku, který zde převzal bojovou zástavu. Den ozbrojených sil"
+    ],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Co následovalo po obsazení Česko-Slovenska německými vojsky v březnu 1939?",
+    "options": [
+      "Vyhlášení protektorátu Čechy a Morava a vznik Slovenského štátu",
+      "Vyhlášení protektorátu Čechy a Morava",
+      "Vyhlášení protektorátu Čechy a Morava a vznik Slovenského štátu a obsazení Podkarpatské Rusy Maďarskem"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Kdy proběhla bitva u Bachmače?",
+    "options": ["8.- 13. května 1918", "8. – 13. březen 1918", "8. -13. dubna 1918"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Jaký důsledek byl po úspěšném provedení útoku na říšského protektora R. Heydricha?",
+    "options": [
+      "Vypálení obce Lidice a Ležáky, rozpoutání teroru proti civilnímu obyvatelstvu. V mezinárodním prostředí došlo k zneplatnění Mnichovské dohody z roku 1938",
+      "Vypálení obce Lidice a Ležáky, rozpoutání teroru proti civilnímu obyvatelstvu. Ukončení vojenské výroby ve Škodě Plzeň",
+      "Vypálení obce Lidice a Ležáky, rozpoutání teroru proti civilnímu obyvatelstvu"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Jaký byl úkol čs. Opevnění?",
+    "options": [
+      "Zabránit nenadálému útoku do ČSR, umožnit mobilizaci a ve spolupráci s polními jednotkami zastavit nepřítele v pohraničních oblastech",
+      "Zastavit útok německo – maďarských partyzánů",
+      "Zabránit povstání Sudeckého obyvatelstva v pohraničí"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Ve kterém městě v bývalé ČSR vypuklo povstání proti okupantům jako první?",
+    "options": ["Praha", "Přerov", "Humpolec"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Která jednotka nesla hlavní tíhu obrany vrcholku Doss Alto?",
+    "options": [
+      "nesl 33. československý jízdní pluk, kterému se po posílení zálohami, úspěšně podařilo nepřítele vypudit ze zákopových pozic a pozice ubránit",
+      "nesl 33. československý střelecký pluk, kterému se po posílení zálohami, neúspěšně podařilo nepřítele vypudit ze zákopových pozic a pozice neobsadili",
+      "nesl 33. československý střelecký pluk, kterému se po posílení zálohami, úspěšně podařilo nepřítele vypudit ze zákopových pozic a pozice ubránit"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Které z následujících prvků, dle funkčního dělení, nepatří mezi prvky AČR?",
+    "options": [
+      "Bojové prvky AČR",
+      "Prvky následné podpory",
+      "Prvky bojové podpory",
+      "Prvky bojového zabezpečení"
+    ],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Letoun C295M je?",
+    "options": [
+      "taktickým dopravním letadlem",
+      "taktickým stíhacím letadlem",
+      "taktickým vrtulovým letadlem"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Dle základního dělení rozdělujeme útvary VzS na?",
+    "options": [
+      "bojové útvary, útvary bojové podpory a útvary bojového zabezpečení",
+      "útvary letectva, PVO a útvary VŘPz",
+      "základny, pluky, správy letišť a logistická centra"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Hlavním úkolem vzdušných sil je?",
+    "options": [
+      "NaPoSy PVO ČR",
+      "SAR",
+      "NATINAMDS"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "4. brigáda rychlého nasazení má ve své struktuře tankový prapor.",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Ženijní pluk má ve svém názvu historický název.",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Mezi bojové prvky AČR nepatří:",
+    "options": [
+      "73. tankový prapor",
+      "41. mechanizovaný prapor",
+      "143. zásobovací prapor"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Do jakého třístupňového systému velení spadá nově vzniklé Velitelství se sídlem v Brně?",
+    "options": [
+      "Pod operační úroveň",
+      "Pod taktickou úroveň",
+      "Pod strategickou úroveň"
+    ],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Kolik bojových vrtulníků mají Vzdušné síly AČR?",
+    "options": ["17"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Můžeme prohlásit, že vznik Československého letectva jako předchůdce Vzdušných sil Armády České republiky se datuje před vznik samostatného státu?",
+    "options": ["Ano", "Ne"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Hlavním úkolem Vzdušných sil AČR je zabezpečení obrany vzdušného prostoru ČR. Kterým, z níže uvedených, prostředků je tento úkol zajišťován?",
+    "options": [
+      "Hlavní úkol Vzdušných sil AČR je zajišťován pomocí integrovaného systému protivzdušné obrany NATO, do kterého jsou jednotlivé části VzS AČR integrovány (NATINAMDS)",
+      "Druhou variantou zajištění je nasazení pozemních sil",
+      "Systémy PVO jsou integrované do operačního systému ČR"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Dle základního členění, útvary a jednotky VzS AČR dělíme na:",
+    "options": [
+      "Jednotky bojové, bojové podpory a bojového zabezpečení",
+      "Útvary pozemní a vzdušné",
+      "Systémy velení a řízení"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Dle operačních činností a jejich zabezpečení, útvary a jednotky VzS AČR dělíme na:",
+    "options": [
+      "Letectvo, pozemní prostředky protivzdušné obrany, systémy velení, řízení a spojení (včetně průzkumu) a systém speciálního logistického zabezpečení",
+      "Bojové a podpůrné jednotky",
+      "Systémy logistiky a zabezpečení"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Činnost v rámci koaličního uskupení je podle vyhodnocení velení AČR:",
+    "options": [
+      "Základní, rozhodující a výchozí způsob činností v míru, krizi i válce",
+      "Převážně zaměřena na mírové operace",
+      "Většinou koordinační činnosti"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Zajištění výcviku, výstavby a operační přípravy útvarů vzdušných sil je:",
+    "options": [
+      "Hlavním úkolem velitelství VzS",
+      "Doplňkovou činností",
+      "Náhodnou činností"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Je tato definice správně? Těžké síly (Heavy Forces). Umožňují spojit mobilitu, značnou palebnou sílu a požadovaný stupeň ochrany živé síly. K tomu využívají především osobních vozidel a kolových bojových vozidel.",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Kolik máme rozsahů vojenských činností?",
+    "options": ["3", "4", "5", "6"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Jaké místo velení do uvedeného seznamu nepatří?",
+    "options": [
+      "Centrum podpory (CPod)",
+      "Hlavní místo velení (Main Command Post – MCP, HMV)",
+      "Záložní místo velení (Reserve Command Post – RCP, ZMV)",
+      "Stacionární místa velení",
+      "Taktické místo velení (Tactical Command Post – TAC CP, TMV)",
+      "Mobilní místa velení",
+      "Sousední místo velení"
+    ],
+    "correctAnswers": [6] 
+  },
+  {
+    "question": "Mezi podpůrné vzdušné operace NEPATŘÍ?",
+    "options": ["MEDEVAC (Medical Evacuation)", "CSAR (Combat Search and Rescue)", "CAS (Close Air Support)"],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Jaké jsou základní vlastnosti vzdušných sil?",
+    "options": ["centralizované řízení a decentralizované provedení", "podzvuk, nadzvuk, stealth", "rychlost, dostup, dosah"],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Je součástí vzdušných sil geografická a meteorologická služba?",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Je součástí jednotek bojové podpory kynologie?",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Může být taktické letectvo využito při ochraně vzdušného prostoru členských zemí Aliance?",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Mezi skupiny členění vzdušných sil z hlediska operačních činností a jejich podpory NEPATŘÍ?",
+    "options": [
+      "prostředky pozemní PVO",
+      "prvky velení, řízení a průzkumu",
+      "vojskové letectvo"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Vzdušné operace nad územím protivníka se označují?",
+    "options": ["OCA (offensive counter air)", "DCA (defensive counter air)", "CAO (counter air operations)"],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "V aliančním pojetí rozlišujeme vojenské operace podle hlavního zaměření na:",
+    "options": [
+      "Bojové operace, operace na podporu míru, vojenské mírové nasazení",
+      "Bojové operace, protipovstalecké operace, operace na podporu míru, vojenské mírové nasazení",
+      "Bojové operace, protipovstalecké operace, vojenské mírové nasazení",
+      "Bojové operace, protipovstalecké operace, operace na podporu míru"
+    ],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Rozsah vojenských činností dle Alianční doktríny představují:",
+    "options": [
+      "Ofenzivní (útočné) činnosti, defenzivní (obranné) činnosti",
+      "Ofenzivní (útočné) činnosti, defenzivní (obranné) činnosti, stabilizační činnosti",
+      "Ofenzivní (útočné) činnosti, defenzivní (obranné) činnosti, jiné taktické (podpůrné) činnosti",
+      "Ofenzivní (útočné) činnosti, defenzivní (obranné) činnosti, stabilizační činnosti, jiné taktické (podpůrné) činnosti"
+    ],
+    "correctAnswers": [3] 
+  },
+  {
+    "question": "Základními fázemi boje (operace) jsou:",
+    "options": [
+      "Získání informací o protivníkovi, zabránění protivníkovi ve volnosti jeho jednání, útok (úder) na protivníka, rozvinutí úspěchu",
+      "Zabránění protivníkovi ve volnosti jeho jednání, útok (úder) na protivníka, rozvinutí úspěchu",
+      "Získání informací o protivníkovi, zabránění protivníkovi ve volnosti jeho jednání, útok (úder) na protivníka",
+      "Získání informací o protivníkovi, útok (úder) na protivníka, rozvinutí úspěchu"
+    ],
+    "correctAnswers": [0] 
+  },
+  {
+    "question": "Patří geografická služba do organizační struktury vzdušných sil?",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [1] 
+  },
+  {
+    "question": "Kolik druhů ofenzivních činností dle Alianční doktríny rozeznáváme a které to jsou?",
+    "options": [
+      "8 – útok, přepad, rozvíjení úspěchu, pronásledování, průzkum bojem, demonstrace síly, léčka, vyjití z obklíčení",
+      "8 – útok, přepad, rozvíjení úspěchu, pronásledování, klamný útok, průzkum bojem, demonstrace síly, léčka, vyjití z obklíčení",
+      "9 – útok, přepad, rozvíjení úspěchu, pronásledování, průzkum bojem, demonstrace síly, léčka, vyjití z obklíčení",
+      "9 – útok, přepad, rozvíjení úspěchu, pronásledování, klamný útok, průzkum bojem, demonstrace síly, léčka, vyjití z obklíčení"
+    ],
+    "correctAnswers": [2] 
+  },
+  {
+    "question": "Schvaluje technickou způsobilost vojenských vozidel velitel útvaru??",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Schvaluje vojenská policie technickou způsobilost vojenských vozidel?",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Celková hmotnost PT Mi Ba III je?",
+    "options": ["11,8 kg", "12,8 kg", "10,8 kg"],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Do jaké skupiny ženijního materiálu spadají defence-wally?",
+    "options": [
+      "Prvky ochranné stavby",
+      "Technické maskování – protiradiolokační",
+      "Ženijní zátarasy kombinované"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Působnost Vojenského zpravodajství stanovují tyto zákony?",
+    "options": [
+      "č.154/1994 Sb. a č.288/2005 Sb",
+      "č.153/1994 Sb. a č.289/2005 Sb",
+      "č.155/1994 Sb. a č.287/2005 Sb"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi charakteristické rysy a omezení průzkumu zahrnujeme?",
+    "options": [
+      "získávání informací, palebná síla, ochrana, výdrž, omezení, mobilita",
+      "mobilita, získávání informací, palebná síla, ochrana, pružnost, výdrž",
+      "mobilita, získávání informací, palebná síla, ochrana, pružnost, výdrž, omezení"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Z hlediska intenzity můžeme provést průzkum dvěma způsoby?",
+    "options": ["zběžně – důkladně", "krátce – dlouze", "normálně – podrobně"],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Kolik prvků tvoří organizační strukturu Vojenské policie?",
+    "options": ["5", "4", "2", "3"],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Jaké jsou palebné úkoly s neletálním účinkem?",
+    "options": [
+      "OBTĚŽOVAT, ZBOŘIT, ZADÝMIT, UMLČIT, OSVĚTLIT",
+      "OBTĚŽOVAT, ZBOŘIT, ZADÝMIT, UMLČIT, RUŠIT",
+      "OBTĚŽOVAT, ZBOŘIT, ZADÝMIT, ZAPÁLIT, OSVĚTLIT"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Zkratka VSHORAD znamená?",
+    "options": [
+      "systém PVO velmi krátkého dosahu",
+      "speciální druh zbraně PVO",
+      "systém PVO sil rychlého nasazení"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi aktivní opatření protivzdušné obrany NEPATŘÍ?",
+    "options": [
+      "vyčlenění sil a prostředků k palbě na VPN",
+      "provádění vidového průzkumu vzdušného prostoru",
+      "ničení bezpilotních prostředků"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Vojsko pozemní protivzdušné obrany VzS AČR je organizačně začleněno do?",
+    "options": ["25.plrp", "BÚU", "NRF"],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké známe kontrolní prohlídky?",
+    "options": [
+      "před výjezdem, o zastávkách",
+      "před výjezdem, údržbu po použití",
+      "údržbu po použití, základní údržbu, technickou roli, zvláštní druhy údržby",
+      "údržbu po použití, technickou údržbu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Na kolik úrovní se člení vojenská logistika?",
+    "options": ["2", "1", "3", "Nečlení se"],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Zbraně hromadného ničení se dělí na?",
+    "options": [
+      "chemické, biologické, radiologické",
+      "chemické, biologické, jaderné",
+      "chemické, biologické, radiologické, jaderné"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Která z následujících kategorií nepatří mezi kategorie požárního nebezpečí?",
+    "options": [
+      "se zvýšeným požárním nebezpečím",
+      "s mimořádně vysokým požárním nebezpečím",
+      "s vysokým požárním nebezpečím"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Jak často probíhá na území ČR letecké měřické snímkování?",
+    "options": [
+      "každých 24 měsíců",
+      "každých 6 měsíců",
+      "každých 12 měsíců"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Pod jaký stupeň utajení spadá Automatizovaný systém velení a řízení (ASVŘ)?",
+    "options": ["Důvěrné", "Tajné", "Vyhrazené"],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Který z následujících prostředků nepatří mezi prostředky dekontaminace kůže, výstroje a osobní zbraně jednotlivce?",
+    "options": [
+      "UOS-1M",
+      "DETEHIT",
+      "IPB-80"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Jaký je význam a účel bezpečnostní značky modré barvy dle nařízení vlády č. 375/2017 Sb.?",
+    "options": [
+      "značka výstrahy",
+      "nouzový východ, 1. pomoc, bezpečí",
+      "značka příkazu"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Který z následujících úkolů neplní spojovací četa?",
+    "options": [
+      "bezpečnostní správa OTS VŘ PozS HMV",
+      "vybudování linkového spojení na hlavním místě velení",
+      "připojení do tranzitní radioreléové sítě"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Tacevac je?",
+    "options": [
+      "Strategický transport mezi státy, repatriace (fáze odsunu pacientů prováděná prostředky vzdušné přepravy ze zámořských oblastí na domácí základnu, do jiných států NATO nebo do dočasně bezpečné zóny)",
+      "Předsunutý transport vzdušné přepravy mezi místy na bojišti, (z bojiště do prvotního léčebného zařízení a do následných léčebných zařízení v rámci bojové zóny)",
+      "Taktický transport mezi Rolemi (fáze odsunu pacientů prováděná prostředky vzdušné přepravy z bojové zóny do míst mimo ni a mezi místy v rámci operační zóny)"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Co znamená zkratka ISL?",
+    "options": [
+      "Integrovaný systém logistiky",
+      "nic",
+      "Ideální systém logistiky",
+      "Informační systém logistiky"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Jaké je základní dělení majetku?",
+    "options": [
+      "Hmotný; Nehmotný",
+      "Normální; Běžné potřeby",
+      "Běžné; Bojové",
+      "Souhrnné; Nesouhrnné"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaká je nejmenší doba odpočinku řidiče nejpozději po 4,5 hod. jízdy?",
+    "options": ["30 min"],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jakou úlohu zabezpečují v AČR jednotlivá praporní obvaziště?",
+    "options": ["Role 3", "Role 1", "Role 2"],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Kde se vždy nachází síly a prostředky stacionární logistiky?",
+    "options": [
+      "Vždy na území ČR",
+      "Vždy v Praze",
+      "Vždy kdekoliv ve světě",
+      "Vždy v Olomouci"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Každý příslušník AČR je povinen znát a používat zákres prostřednictvím symbolů pro? (zvol jednu položku, která sem nepatří)",
+    "options": [
+      "základní symboly druhů ručních zbraní",
+      "označení stupně organické jednotky a o jeden organizační stupeň vyššího",
+      "základní řídicí symboly podle druhu sil",
+      "základní znázornění sil a prostředků IZS a CS ČR",
+      "přidělené zbraně, techniku nebo systémy",
+      "základní symboly druhů techniky pozemních anebo vzdušných sil",
+      "osoby (jednotlivce)"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Do základní měřítkové řady map používané v AČR při tvorbě dokumentů nepatří mapy zpracované v měřítku?",
+    "options": [
+      "1:50 000",
+      "1:25 000",
+      "1:75 000",
+      "1:100 000"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Jakou velikost jednotky znázorňují 3 tečky nad situační značkou jednotky?",
+    "options": [
+      "sekci",
+      "družstvo",
+      "rotu",
+      "četu"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Klíčovou osobou rozhodovacího procesu na všech úrovních je?",
+    "options": [
+      "Velitel",
+      "Velitel podřízené jednotky",
+      "Náčelník štábu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Situační značka modré barvy znázorňuje?",
+    "options": [
+      "neutrální jednotky",
+      "nezjištěné jednotky",
+      "vlastní jednotky",
+      "jednotky protivníka"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Která čára je označena PL?",
+    "options": [
+      "předpokládaná čára rozvinutí",
+      "přední okraj obrany",
+      "koordinační, regulační čára",
+      "výchozí čára, čára rozvinutí"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Kolik kroků má úplný plánovací proces v MDMP?",
+    "options": ["7", "4", "5"],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Příprava na stanovené bojové úkoly obvykle začíná vydáním předběžného rozkazu/nařízení (warning order – WNGO)?",
+    "options": ["Pravda", "Nepravda"],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je CIMIC koordinace a spolupráce, na podporu mise, mezi velitelem NATO a civilními aktéry, včetně místního obyvatelstva a jeho představiteli, jakož i mezinárodními, národními a nevládními organizacemi a agenturami?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je v ČR asi 30 000 NGOs? (Nestátní či nevládní nezisková organizace)",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Patří do úkolů CIMIC poskytování informací do plánovacího procesu hodnocení civilního prostředí v místě nasazení se zaměřením na civilně-vojenské dopady?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Patří mezi hlavní úkoly Vojenské služební kynologie zřizování útulků pro zvířata v rámci ČR?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Používá Vojenská služební kynologie u Výsledků celého přezkoušení hodnocení 'VÝTEČNĚ, DOBŘE, VYHOVUJÍCÍ'?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Je součástí organizační struktury Speciálních sil AČR Centrum podpory speciálních sil (CPSS)?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je tento znak 601. skupiny speciálních sil generála Moravce (601. skss)?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+   {
+    "question": "AČR užívá tyto bezpečností pohotovostní stavy?",
+    "options": [
+      "První pohotovost, druhá pohotovost a třetí pohotovost",
+      "Stav 1, Stav 2, Stav 3",
+      "Alpha, Bravo, Charlie, Delta"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Probíhají mobilizační přípravy v míru?",
+    "options": [
+      "Ano",
+      "neprobíhají",
+      "probíhají až po vyhlášení válečného stavu (VS)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Bojová pohotovost se dělí na?",
+    "options": [
+      "Zvýšenou a plnou",
+      "Nízkou, střední a vysokou",
+      "Nedělí se"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Tzv. „zásada rozlišování“ z hlediska práva ozbrojeného konfliktu znamená",
+    "options": [
+      "Při vedení bojové činnosti je vždy potřeba rozlišovat mezi příslušníky vlastních ozbrojených sil a vojáky nepřítele",
+      "Při útoku je vždy potřeba rozlišovat mezi objekty a osobami vojenskými, nebo civilními",
+      "Při ošetřování raněných je třeba rozlišovat mezi raněnými civilisty a raněnými vojáky",
+      "Osoby účastnící se konfliktu musí být vždy řádně a viditelně označeny"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Co znamená pojem „nutná obrana“?",
+    "options": [
+      "Je čin jinak trestný, kterým někdo odvrací přímo hrozící, nebo trvající útok na zájem chráněný trestním zákonem",
+      "Představuje schopnost, nebo připravenost nepřítele způsobit škodu, to může vyplývat z konkrétních taktických okolností",
+      "Představuje základ pro použití síly, nebo připravenost nepřítele způsobit škodu",
+      "Je to okolnost vylučující protiprávnost povinné sebeobrany"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co znamená, že je útok vedený nerozlišujícím způsobem?",
+    "options": [
+      "Činnost neumožňuje působit pouze na vojenské cíle a zasahuje i civilní obyvatelstvo a civilní objekty",
+      "Představuje schopnost, nebo připravenost nepřítele způsobit škodu, to může vyplývat z konkrétních taktických okolností",
+      "Bojující strany nejsou regulérně označeny za účelem zmást protivníka"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Dle RoE, pravidel pro užití síly, když jste v ohrožení měl byste použít?",
+    "options": [
+      "minimální potřebnou sílu",
+      "sílu v rozsahu a způsobem pouze dle rozkazu nadřízeného",
+      "smrtící sílu okamžitě"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Z hlediska LOAC nejsou v ozbrojených konfliktech chráněnými osobami?",
+    "options": [
+      "civilní obyvatelstvo",
+      "žoldáci a příslušníci bezpečnostních sborů",
+      "ranění, nemocní a váleční zajatci"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Osoba, která spolupracuje s hnutím odboje proti okupaci?",
+    "options": [
+      "nesmí být za svou činnost stíhána soudem nepřítele",
+      "může být za svou činnost stíhána soudem nepřítele",
+      "může být deportována z okupovaného území"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Civilní osoba, která se aktivně účastní boje",
+    "options": [
+      "Je od toho okamžiku legitimním cílem útoku",
+      "Může být zadržena, ale bez ohrožení života",
+      "Je legitimním cílem útoku, ale jen po dobu přímé účasti v bojové akci",
+      "Jakákoliv činnost vůči ní je bezvýhradně nepřípustná"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Útok na civilní osoby z hlediska práva ozbrojeného konfliktu",
+    "options": [
+      "Je přípustný pouze tehdy, bylo-li před útokem učiněno varování",
+      "Je bezvýhradně nepřípustný",
+      "Je přípustný jen jako odveta, postupuje-li tak přes varování druhá strana",
+      "Je vždy přípustný"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Když situace vyžaduje použití síly, měl byste použít",
+    "options": [
+      "Smrtící sílu okamžitě",
+      "Žádnou sílu, nejste-li napaden střelbou",
+      "minimální potřebnou sílu",
+      "sílu v rozsahu a způsobem pouze dle rozkazu nadřízeného"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Co si představíte pod pojmem „smrtící síla“ dle pravidel RoE?",
+    "options": [
+      "vždy zakázáno",
+      "síla potřebná k zabití nebo způsobení vážného zranění",
+      "okamžitá činnost, když se cítím ohrožený"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Při plánování a provádění bojové činnosti zvolí velitel postup, který",
+    "options": [
+      "Přinese nejmenší možné ztrát v řadách jednotky",
+      "Způsobí nejmenší možné ztráty na civilních objektech a osobách",
+      "Vyžaduje nejmenší možnou spotřebu munice",
+      "Vždy přinese porážku nepřítele, či jinou strategickou výhodu a to za jakýchkoliv okolností"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Co si představíte pod pojmem „mírová operace“?",
+    "options": [
+      "Jeden z ne příliš úspěšných nástrojů mezinárodního společenství sloužící k ovlivnění výsledku ozbrojených konfliktů",
+      "Aktivity, které pokrývají celou škálu multifunkčních operací zaměřených na nastolení a udržení míru",
+      "Operace vojenského, nebo policejního charakteru realizované na podporu některé ze stran konfliktu",
+      "Operace zaměřená na odvrácení přímo hrozícího, nebo trvajícího útoku vůči chráněným zájmům"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Které prameny LOAC se aplikují v situacích vnitřních nepokojů a napětí?",
+    "options": [
+      "všechny včetně Ženevských úmluv a Dodatkových protokolů, které řeší obecně situace ozbrojených konfliktů",
+      "tyto normy se na tyto situace nevztahují, vyjma některých ustanovení mezinárodních úmluv na ochranu lidských práv",
+      "zejména Dodatkový protokol II. z roku 1977, který řeší specifické situace vnitrostátních ozbrojených konfliktů"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Co znamená tzv. zásada vojenské nezbytnosti/účelnosti?",
+    "options": [
+      "Činnost, která není nezbytná k přemožení či neutralizaci protivníka je zakázána (omezit násilí na nezbytné minimum)",
+      "Se všemi osobami musí být zacházeno lidsky, při vedení vojenských operací je třeba vždy zohledňovat, zda útok na vojenský cíl si nevyžádá tzv. vedlejší škodu",
+      "Se všemi osobami musí být zacházeno lidsky a bez jakéhokoli rozlišování pohlaví, národnosti, rasy, náboženství, politického přesvědčení apod.",
+      "Při plánování a provádění bojové činnosti volí velitel vždy postup, který přinese porážku nepřítele či jinou strategickou výhodu a to za jakýchkoliv okolností"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co patří mezi základní pravidla pro chování v boji?",
+    "options": [
+      "stanov si všechna možná řešení a pak omez ničení jen na to, co si vynucuje splnění pouze tvého bojového úkolu",
+      "raněné kombatanty protější strany shromáždi, pečuj o ně, předej je svému veliteli nebo nejbližšímu zdravotnickému personálu jen pokud to není osoba, která je speciálně najata k boji nebo tajně získává zprávy o bojovém prostoru některé válčící strany",
+      "bojuj jen s kombatanty, útoč jen na vojenské cíle, ušetři civilní osoby a objekty"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Použití smrtící síly dle ROE je",
+    "options": [
+      "Okamžitá činnost, když se cítím ohrožený",
+      "Síla potřebná k zabití, nebo způsobení vážného zranění",
+      "Vždy zakázáno",
+      "Povoleno za všech okolností"
+    ],
+    "correctAnswers": [1]
+  },
+   {
+    "question": "Osobní zájmy vojáka nejsou podřízeny zájmu vyššího celku. Proto nedílnou a důležitou součástí myšlení vojáka by mělo být správné řazení priorit jeho konání. Je toto definice pro obětavost?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Vojenská přísaha především vyzdvihuje:",
+    "options": [
+      "a. nepřipravenost vojáka bojovat a zemřít při použití vojenského úsilí ČR",
+      "b. připravenost vojáka bojovat, ale i zemřít při použití vojenského úsilí ČR",
+      "c. neschopnost AČR bojovat"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Které morální hodnoty jsou obsaženy v Kodexu etiky vojáka:",
+    "options": [
+      "a. Odpovědnost a smysl pro povinnost, Obětavost, Odvaha, Věrnost, Čest",
+      "b. Obětavost, Odvaha, Věrnost, Čest, Zbabělost",
+      "c. Odvaha, Věrnost, Čest, Opatrnost"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Vyzdvihuje vojenská přísaha že se vojáci vzdávají některých občanských práv a svobod?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Vedení, jinými slovy LEADERSHIP, je definováno jako ovlivňování lidí za účelem splnění bojového úkolu. Velitelé vedou pomocí kombinace:",
+    "options": [
+      "platu, rozkazů a osobního volna",
+      "účelu, směru a motivace",
+      "osobního příkladu, přesvědčování a nátlaku"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Možný průběh porady?",
+    "options": [
+      "Úvod - zeptat se účastníků co by chtěli vědět, znát, co je trápí a podle toho operativně řídit poradu. Závěr - nechat věci otevřené a posečkat do příští porady jak se věci budou vyvíjet",
+      "První fáze - vytknout přítomným co se jejich vinou nepodařilo splnit, provést kritiku všech účastníků; druhá fáze - za nesplnění úkolů potrestat jednotlivce i celý tým; třetí fáze - stanovit co nejkratší termín pro rychlé sjednání nápravy a splnění úkolů",
+      "Zahájení - nastavení pravidel, časového limitu, stanovení účelu porady a rozdělení rolí; průběh - rozdělení času mezi aktuální problémy, záležitosti z minula a úkoly do budoucnosti; zakončení - zhodnocení výsledků porady a rozdělení úkolů, případné delegování pravomocí, stanovení termínů plnění"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Dobrý úkol (z porady) by měl být (pravidlo SMART)",
+    "options": [
+      "S = společný, M = mandatorní, A = aktuální, R = rychlý, T = tajný",
+      "S = složitý, M = měnitelný, A = akceptovaný, R = rychlý, T = termínovaný",
+      "S = specifický, M = měřitelný, A = akceptovaný, R = reálný, T = termínovaný a trasovaný"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Aby odměna či trest splnil 'výchovný' cíl, musí být aplikována co:",
+    "options": [
+      "nejrychleji",
+      "nejčastěji",
+      "nejsilněji"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Při předcházení a řešení konfliktů je nejdůležitější identifikovat:",
+    "options": [
+      "viníka",
+      "problém",
+      "řešení"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Konflikt je proces, při kterém jedna osoba (skupina) vnímá druhou osobu jako:",
+    "options": [
+      "atraktivní",
+      "soupeřící",
+      "úspěšnou"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Podřízení od svých velitelů či náčelníků v oblasti vedení lidí očekávají:",
+    "options": [
+      "osobní příklad",
+      "podpůrné a a direktivní jednání",
+      "uplatňování odměn a trestů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Existují čtyři kompetence vůdcovství:",
+    "options": [
+      "mentorství, koučování, přikazování a delegování",
+      "řízení pozornosti lidí, řízení významu, řízení důvěry a řízení vlastní osoby",
+      "delegování, podporování, motivování, hodnocení"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Příležitost dát podřízenému pocit důležitosti, nechat jej účastnit se rozhodování, ptát se jej na názor a projevit důvěru k podřízenému, je základem:",
+    "options": [
+      "delegování",
+      "deeskalace",
+      "demokracie"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Nejčastějšími důvody pro uspořádání porady v armádě bývají: potřeba předání a rozdělení úkolů; orientace a směřování služebních úkolů; potřeba výměny informací; dosažení vzájemného porozumění; řešení problémů; seznámení s novými technologiemi, aplikacemi, postupy.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zápis z porady by měl obsahovat:",
+    "options": [
+      "jádr - zahájení, záznam referátu, diskuse, úkoly; závěr - datum vyhotovení, jméno zapisovatele s jeho vlastnoručním podpisem",
+      "záhlaví - nadpis, datum, místo konání akce, doba konání, počet přítomných, nepřítomných",
+      "záhlaví - nadpis, datum, místo konání akce, doba konání, počet přítomných, nepřítomných; jádro - zahájení, záznam referátu, diskuse, úkoly; závěr - datum vyhotovení, jméno zapisovatele s jeho vlastnoručním podpisem"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Proces, kterým velitel přenáší svou vůli na podřízené, uplatňuje vojenskou pravomoc a odpovědnost vydávat úkoly nazýváme:",
+    "options": [
+      "vedení lidí",
+      "delegování",
+      "velení"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Hodnotící pohovor je součástí služebního hodnocení podřízených, pohovor je:",
+    "options": [
+      "podepsán na chodbě",
+      "zahájen námitkami hodnoceného",
+      "ukončen stanovením cílů na další období"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Při hodnocení podřízených je důležité řídit se několika základními pravidly – mělo by být pravidelné, co nejvíce objektivní a musí mít svou vnitřní kontinuitu. Hodnotí se zpravidla tři hlediska:",
+    "options": [
+      "dosažené vzdělání, nasazení v zahraniční operaci a fyzickou kondici",
+      "odbornost, výkonnost a osobní rozvoj",
+      "motivaci, rychlost a odbornost"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Efektivita porad přímo souvisí s jasností jejich cílů.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Chování velitele lze rozlišovat na podpůrné chování (což lze brát jako orientaci na lidi) a direktivní chování (které odpovídá orientaci na úkol), přičemž jedním z používaných stylů je KOUČOVÁNÍ. Jeho definice zní:",
+    "options": [
+      "vedoucí volí tento styl v situaci kdy se objevují kompetenční a jiné spory. S tím klesá morálka. Je třeba věnovat se mezilidským vztahům.",
+      "legálního vůdcovství",
+      "charismatického vůdcovství"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Oprávnění a povinost velitele vydávat rozkazy ve své působnosti, stanovovat a činit opatření s možností využívat prostředků definovaných zákonem, dle svého uznání a vhodnosti ke splnění úkolů je v předpise definováno jako:",
+    "options": [
+      "nedělitelná velitelská pravomoc",
+      "velitelská pravomoc a odpovědnost",
+      "popis funkční náplně"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké jsou fáze skupinové dynamiky dle teorie Bruce Tuckmana?",
+    "options": [
+      "a. Formování, Bouření, Normování, Optimální výkon, Ukončování",
+      "b. Formování, Bouření, Normování, Optimální výkon, Loučení",
+      "c. Bouření, Normování, Průměrný výkon, Ukončování"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Realizátor – v týmu je užitečný pro svou spolehlivost a schopnost uskutečňovat zadané úkoly, ale neudělá to, co se udělat musí.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Lidé na celém světě používají naprosto stejná gesta.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Neverbální komunikace zahrnuje mimoslovní sdělení, která předáváme:",
+    "options": [
+      "a. na žádost příjemce informace",
+      "b. vědomě nebo nevědomě",
+      "c. neexistuje neverbální komunikace"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi rysy, kterými se verbální komunikace vyznačuje NEPATŘÍ?",
+    "options": [
+      "a. určitý jazyk",
+      "b. mimoslovní sdělení",
+      "c. ústní a písemný projev"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Interpersonální komunikace je:",
+    "options": [
+      "a. Vnitřní komunikace jednoho člověka v myšlenkách",
+      "b. Komunikace ve skupině",
+      "c. Vzájemná komunikace mezi dvěma a více lidmi"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Vybudovat kulturu zpětné vazby a otevřít prostor pro řešení otázek a sdělování pocitů. Zároveň nabízet možnost, zkusit si vést skupinu i ostatním - typově nevůdčím členům skupiny. Zároveň sledovat energii skupiny.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Pojem HAPTIKA označuje a zaměřuje se na?",
+    "options": [
+      "a. na pohyby celého těla",
+      "b. význam doteků v komunikaci",
+      "c. tempo řeči v komunikaci"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Komunikační bariéry mohou být interní (osobnostní problémy komunikujícího) i externí (rušivé elementy z prostředí).",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Funkce neverbální komunikace jsou tyto?",
+    "options": [
+      "a. doplňující, nahrazující, vyjádření nepřátelského, vymezení vlastního prostoru",
+      "b. haptika, kinezika, proximika, vizika, proxemika",
+      "c. komplementární, substituční, vyjádření emocí, fyzického a emočního postoje"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Neverbální komunikace je slovní komunikace a jejím hlavním rysem je artikulovaná řeč.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Pozitivem konfliktu je, že:",
+    "options": [
+      "a. Vítězí silnější a schopnější",
+      "b. Startuje změny",
+      "c. Prohrává slabší a neschopný",
+      "d. Upozorňuje na problémy",
+      "e. Vede k sebepoznání"
+    ],
+    "correctAnswers": [1, 3, 4]
+  },
+  {
+    "question": "Při komunikaci k nám informace pronikají skrze tzv. komunikační filtr, do filtru NEPATŘÍ?",
+    "options": [
+      "a. vlastní já",
+      "b. věk",
+      "c. sociální prostředí"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké definujeme tři úrovně sdělení?",
+    "options": [
+      "a. verbální, nonverbální a činy",
+      "b. nonverbální, verbální a učení",
+      "c. verbální, neverbální a emoční"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Rozsah vnímání komunikace je přibližně v rozsahu:",
+    "options": [
+      "a. Mimika a gesta 50 %, slovní informace 50 %",
+      "b. Slovní informace 80 %, mimika a gesta 20 %",
+      "c. Mimika a gesta 80 %, slovní informace 20 %"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Vyjednávání je proces, jehož pomocí se dvě strany s odlišným vnímáním, s odlišnými potřebami a motivy pokoušejí shodnout na věci společného zájmu.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Pojem PROXEMIKA označuje a zaměřuje se na?",
+    "options": [
+      "a. význam vzdáleností v komunikaci",
+      "b. postavení celého těla",
+      "c. pohyb obličejových svalů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Který z těchto přístupů k vyjednávání je přijatelný:",
+    "options": [
+      "a. Prohra x prohra",
+      "b. Výhra x výhra",
+      "c. Výhra x prohra"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Intrapersonální komunikace je:",
+    "options": [
+      "a. Vzájemná komunikace mezi dvěma více lidmi",
+      "b. Vnitřní komunikace jednoho člověka v myšlenkách",
+      "c. Komunikace ve skupině"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Verbální komunikace je neslovní komunikace a jejím hlavním projevem je řeč těla.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi hlavní komponenty neverbální komunikace nepatří?",
+    "options": [
+      "a. proxemika",
+      "b. řeč očí",
+      "c. pomlky a pauzy v řeči"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Pojem Gestika označuje a zaměřuje se na?",
+    "options": [
+      "a. na význam doteků",
+      "b. na pohyby a postavení prstů, paží, nohou a hlavy",
+      "c. složku verbálního projevu"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Argumentace je komunikační metoda jak přesvědčit nebo získat komunikačního partnera.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi zásady efektivní a úspěšné komunikace NEPATŘÍ?",
+    "options": [
+      "a. usmívat se",
+      "b. méně se ptát a používat zápory",
+      "c. aktivní naslouchání"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Je Optimální vývoj předposlední fází skupinové dynamiky?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi prvky verbální komunikace patří:",
+    "options": [
+      "a. Artikulace a výslovnost, síla hlasu, výška hlasu a rychlost řeči",
+      "b. Intonace a dynamika řeči, gesta, pohyby těla",
+      "c. Vnější vzhled, mimika, plynulost řeči a její rozsah"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je diplomatický protokol soubor pravidel, zásad a formálních konvencí využívaných při oficiálním společenském styku na mezinárodní úrovni?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Představují vojenské pocty soubor činností, které příslušníci ozbrojených sil provádějí při protokolárních aktech a dalších činnostech v souladu s vojenskými řády a předpisy?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Může si společensky významnější osoba sama rozhodnout, s kým si podá ruku a s kým nikoliv?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je etiketa součástí společenského mravu, nikoli individuální morálky a etikety?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Členíme protokolární akty na pietní, smuteční a slavné?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Je smyslem představování v podstatě zbavování se anonymity?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi podpůrné vzdušné operace NEPATŘÍ?",
+    "options": [
+      "a. CSAR (Combat Search and Rescue)",
+      "b. MEDEVAC (Medical Evacuation)",
+      "c. CAS (Close Air Support)"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Která z nabízených možností nepatří mezi fáze skupinové dynamiky (dle Tuckmanovi teorie):",
+    "options": [
+      "a. znovuzrození",
+      "b. optimální výkon",
+      "c. bouření",
+      "d. formování"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi úkoly 25. protiletadlového raketového pluku Strakonice NEPATŘÍ:",
+    "options": [
+      "a. zabezpečení protivzdušné obrany jednotek a úkolových uskupení pozemních vojsk AČR, plnících bojové úkoly;",
+      "b. zabezpečení protivzdušné obrany České republiky a objektů státního významu, tj. jaderných elektráren, leteckých základen, průmyslových aglomerací a dopravních uzlů před vojenským i nevojenským napadením ze vzdušného prostoru ČR v rámci národního posilového systému NaPoSy;",
+      "c. výcvik předsunutých leteckých návodčích;",
+      "d. zabezpečení protivzdušné obrany v rámci aliančního systému PVO v Evropě NATINAMDS;"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Organizační strukturu Vojenské policie tvoří:",
+    "options": [
+      "1) Hlavní velitelství Vojenské policie,",
+      "2) Velitelství ochranné služby Vojenské policie,",
+      "3) Velitelství Vojenské policie Olomouc,",
+      "4) Velitelství Vojenské policie Tábor;"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Která čára je označena FLOT:",
+    "options": [
+      "a. předpokládaná čára rozvinutí",
+      "b. koordinační, regulační čára",
+      "c. čára dotyku",
+      "d. přední okraj vlastních vojsk"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Je CIMIC koordinace a spolupráce, na podporu mise, mezi velitelem NATO a civilními aktéry, včetně místního obyvatelstva a jeho představiteli, jakož i mezinárodními, národními a nevládními organizacemi a agenturami?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Projevem zájmu o komunikačního partnera NENÍ?",
+    "options": [
+      "a. projev netrpělivosti",
+      "b. náš přívětivý hlas",
+      "c. snaha o povzbuzování druhého"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Podstatou řídící činnosti velitele tvoří vedení lidí. Mělo by všeobecně platit, že je zpracována ucelená koncepce práce s lidmi. Na základě koncepce a ve spolupráci s personálním útvarem pak by měl každý šéf podílet na:",
+    "options": [
+      "a. výběru příslušníků, komunikaci, hodnocení a řešení problémů",
+      "b. pouze na hodnocení",
+      "c. hodnocení a řešení problémů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co znamená pojem – nutná obrana:",
+    "options": [
+      "a. představuje základ pro použití síly nebo připravenost nepřítele způsobit škodu",
+      "b. čin jinak trestný, kterým někdo odvrací přímo hrozící nebo trvající útok na zájem chráněný trestním zákonem",
+      "c. je to okolnost vylučující protiprávnost povinné sebeobrany",
+      "d. schopnost nebo připravenost nepřítele způsobit škodu a to může vyplývat z konkrétních taktických okolností"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Vojsko pozemní protivzdušné obrany všeobecně zahrnuje:",
+    "options": [
+      "a. protiletadlové raketové systémy, hlavňové protiletadlové systémy",
+      "b. prostředky sledování a řízení vzdušného prostoru, protiletadlové raketové systémy",
+      "c. protiletadlové raketové systémy, přenosné protiletadlové systémy",
+      "d. protiletadlové raketové systémy, hlavňové protiletadlové systémy, přenosné protiletadlové systémy"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Organizace útvarů VzS se dělí dle určení. Do tohoto rozdělení NEPATŘÍ:",
+    "options": [
+      "a. jednotky bojového zabezpečení;",
+      "b. jednotky logistického zabezpečení;",
+      "c. jednotky bojové podpory;",
+      "d. bojové jednotky;"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Jaká je nejmenší doba odpočinku řidiče nejpozději po 4,5 hodinách jízdy:",
+    "options": [
+      "a. nejméně 20 minut",
+      "b. nejméně 1 hodina",
+      "c. nejméně 15 minut",
+      "d. nejméně 30 minut"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Stupeň výstrahy protivzdušné obrany (Air Raid Warning – ARW) ČERVENÁ (ARW Red) znamená:",
+    "options": [
+      "a. útok nepřátelského letectva anebo raket je nepravděpodobný. Výstraha „červená“ může být vyhlášena před nebo i po výstraze „žlutá“ či „bílá“;",
+      "b. bezprostředně hrozí anebo se přibližuje útok vzdušného nepřítele, tzn., že nepřátelské letouny (rakety) jsou v operačním prostoru nebo v jeho těsné blízkosti s vysokou pravděpodobností vletu do něho;",
+      "c. útok vzdušného nepřítele je pravděpodobný, tzn., že nepřátelské letouny (rakety) se přibližují směrem k operačnímu prostoru, nebo že neznámé nebo podezřelé letouny (rakety) směřují k operačnímu prostoru nebo se v něm nacházejí;",
+      "d. útok nepřátelského letectva anebo raket je nepravděpodobný. Výstraha „červená“ nemůže být vyhlášena před nebo i po výstraze „žlutá“ či „bílá“"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Strategický transport mezi státy, repatriace (fáze odsunu pacientů prováděná prostředky vzdušné přepravy ze zámořských oblastí na domácí základnu, do jiných států NATO nebo do dočasně bezpečné zóny) se nazývá:",
+    "options": [
+      "a. Stratevac",
+      "b. Tacevac",
+      "c. Sanitevac",
+      "d. Forward Medevac"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi komunikační dovednosti řadíme?",
+    "options": [
+      "a. přesvědčování, informování, pobavení a motivování",
+      "b. verbální a neverbální komukaci",
+      "c. asertivní komunikaci, naslouchání, kladení otázek, vyjednávání a řeč těla"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Do technického maskování patří?",
+    "options": [
+      "a. hliněné maskování, vegetační maskování, přetřené maskování;",
+      "b. kamuflážní barvy, kontrastní barvy;",
+      "c. maskovací sítě a látky, maskování tvarů;"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zákon 361/2000 Sb. O provozu na pozemních komunikacích, platí také pro:",
+    "options": [
+      "a. motorová vozidla, která jsou provozována na veřejných komunikacích, tj. silnicích a místních komunikacích;",
+      "b. motorová vozidla, která slouží pro vojsko;",
+      "c. motorová vozidla na silnicích v rámci vojenských okrsků;"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaký je maximální čas odpočinku po 9ti hodinové pracovní době:",
+    "options": [
+      "a. nejméně 30 minut",
+      "b. nejméně 45 minut",
+      "c. nejméně 60 minut",
+      "d. nejméně 15 minut"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Práce velitele a štábu při plánování operace v závislosti na způsobu práce nadřízeného velitelství, situaci a času se uskutečňuje formou (metodou)?",
+    "options": [
+      "a. Náhodného a soustředěného rozhodovacího procesu",
+      "b. Rychlého, okamžitého a dokonalého plánování",
+      "c. Hlasovou a po pojítkách",
+      "d. Postupného plánování, souběžného plánování"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Situační značka zelené barvy znázorňuje:",
+    "options": [
+      "a. síly protivníka",
+      "b. nezjištěné síly",
+      "c. vlastní síly",
+      "d. neutrální síly"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Jaké jsme povinni dodržovat zásady při hospodaření a nakládání s majetkem?",
+    "options": [
+      "a. Vždy hospodařit hospodárně",
+      "b. Nás se to netýká",
+      "c. Hospodárnost, účelnost a efektivnost",
+      "d. Zásady hospodárnosti a efektivnosti"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Při plánování a provádění bojové činnosti zvolí velitel postup, který:",
+    "options": [
+      "a. způsobí nejmenší možné ztráty na civilních objektech a osobách",
+      "b. přinese nejmenší možné ztráty v řadách jeho jednotky",
+      "c. vždy přinese porážku nepřítele či jinou strategickou výhodu a to za jakýchkoliv okolností",
+      "d. vyžaduje nejmenší možnou spotřebu munice"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jak často probíhá na území ČR letecké měřické snímkování?",
+    "options": [
+      "a. každých 6 měsíců",
+      "b. každých 12 měsíců",
+      "c. každých 24 měsíců"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Dle zákona č. 219/1999 Sb. HLAVA III. § 14 lze použít příslušníky AČR k plnění úkolů Policie České republiky, pokud síly a prostředky Policie České republiky nebudou dostatečné k zajištění vnitřního pořádku a bezpečnosti, a to na dobu nezbytně nutnou.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Které státy podepsaly Mnichovskou dohodu?",
+    "options": [
+      "a. USA, Německo, Francie, Anglie",
+      "b. Španělsko, Německo, Itálie, Francie",
+      "c. Německo, Itálie, Francie, Anglie",
+      "d. Německo, Itálie, Bulharsko, Francie"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Standardní taktické úkoly prostředků palebné podpory jsou:",
+    "options": [
+      "a. Překvapivá a okamžitá palebná podpora",
+      "b. Přímá palebná podpora (DS – Direct Support) a všeobecná palebná podpora (GS – General Support)",
+      "c. Dálková, blízká a bezprostřední palebná podpora",
+      "d. Dlouhodobá a rychlá palebná podpora"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi charakteristické rysy a omezení průzkumu zahrnujeme?",
+    "options": [
+      "a. mobilita, získávání informací, palebná síla, ochrana, pružnost, výdrž, omezení",
+      "b. získávání informací, palebná síla, ochrana, výdrž, omezení, mobilita",
+      "c. mobilita, získávání informací, palebná síla, ochrana, pružnost, výdrž"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Může si společensky významnější osoba sama rozhodnout, s kým si podá ruku a s kým nikoli?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Smysem představování je:",
+    "options": [
+      "a. udržování a zvyšování kvalifikace",
+      "b. zbavování se anonymity",
+      "c. udržovat personální naplněnost"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Do jaké skupiny ženijního materiálu spadají defence-wally?",
+    "options": [
+      "a. Technické maskování – protiradiolokační",
+      "b. Ženijní zátarasy kombinované",
+      "c. Prvky ochranné stavby"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Prostředkem neverbální komunikace, který se zabývá míry vzdálenosti mezi komunikujícími je?",
+    "options": [
+      "a. posturika",
+      "b. teritorialita",
+      "c. proxemika"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Protokolární akty členíme na:",
+    "options": [
+      "a. zdvořilé a seznamovací",
+      "b. pietní, smuteční a slavnostní",
+      "c. přátelské a kolektivní"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Třístupňový systém velení v AČR zahrnuje tyto úrovně:",
+    "options": [
+      "a. Strategickou, operační, taktickou",
+      "b. Strategickou, operační, teritoriální",
+      "c. Speciální, strategickou, logistickou",
+      "d. Speciální, strategickou, taktickou"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "V kterých zemích vznikly československé legie?",
+    "options": [
+      "a. Itálie, Francie, Rusko, Anglie",
+      "b. Itálie, USA, Francie, Rusko",
+      "c. Itálie, Francie, Rusko, Srbsko",
+      "d. Španělsko, Itálie, Rusko, Francie"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Z hlediska operační činnosti a jejich podpory obecně dělíme Vzdušné síly na:",
+    "options": [
+      "a. Taktické letectvo, Prostředky PVOS, Útvary systému velení a řízení, Útvary logistického zabezpečení a podpory",
+      "b. Letectvo; Pozemní prostředky PVO; Systémy velení, řízení a spojení; Systém speciálního logistického zabezpečení a podpory",
+      "c. Letectvo, Pozemní prostředky PVO, Systémy velení, řízení a průzkumu",
+      "d. Letectvo a Prostředky PVO"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "NATO bylo rozšířeno roku 1999 o následující země?",
+    "options": [
+      "a. ČR, Polsko, Maďarsko",
+      "b. nikdo nepřistoupil",
+      "c. ČR, Polsko, Slovensko",
+      "d. ČR, Polsko, Maďarsko, Slovensko"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Hlavním úkolem 21. základny taktického letectva Čáslav je:",
+    "options": [
+      "a. zabezpečení ochrany vzdušného prostoru České republiky v rámci zapojeni do aliančního systému NATINAMDS",
+      "b. zabezpečení letecké přepravy pro potřeby zdravotnické služby ČR – transplantační program (LZS a SAR)",
+      "c. zabezpečení letecké přepravy osob, techniky a materiálu dle potřeby AČR",
+      "d. zabezpečení přípravy a výcvik předsunutých leteckých návodčích (Joint Terminal Attack Controller, JTAC)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Schopnost člověka řídit se mravním vědomím a svědomím a posuzovat své vlastní jednání i činy těch druhých z hlediska dobra a zla, se nazývá:",
+    "options": [
+      "a. Etika",
+      "b. Svědomitost",
+      "c. Spravedlnost",
+      "d. Etiketa"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Způsoby vedení pozemních operací dle rozsahu vojenských činností dělíme na:",
+    "options": [
+      "• ofenzivní (útočné) činnosti;",
+      "• defenzivní (obranné) činnosti;",
+      "• stabilizační činnosti;",
+      "• jiné taktické (podpůrné) činnosti."
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Na kolik kategorií podle technického stavu rozlišujeme majetek?",
+    "options": [
+      "a. 4 kategorie",
+      "b. 3 kategorie",
+      "c. 2 kategorie",
+      "d. 1 kategorie"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Schopnost člověka řídit se mravním vědomím a svědomím a posuzovat své vlastní jednání a činy těch druhých z hlediska dobra a zla se nazývá:",
+    "options": [
+      "a. Spravedlnost",
+      "b. Etika",
+      "c. Etiketa",
+      "d. Svědomitost"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Dle doktríny rozdělujeme typy taktických pozemních sil na:",
+    "options": [
+      "a. Pozemní a podzemní",
+      "b. Vezené a nesené",
+      "c. Těžké síly (Heavy Forces), Střední síly (Medium Forces)",
+      "d. Těžké síly (Heavy Forces), Střední síly (Medium Forces), Lehké síly (Light Forces)"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Nejlepší informace o topografické a taktické situaci poskytují:",
+    "options": [
+      "a. Topografické mapy",
+      "b. Kombinace obou prvků",
+      "c. Chytré telefony",
+      "d. Pozemní, letecké a kosmické snímky"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Které státy tvořily blok trojspolek 1914?",
+    "options": [
+      "a. Německo, rakousko-Uherské, Itálie",
+      "b. Německo, rakousko-Uherské, Itálie, Osmanská říše, Bulharsko",
+      "c. Německo, rakousko-Uherské, Itálie, Srbsko",
+      "d. Německo, rakousko-Uherské, Itálie, Čečensko"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Součástí ozbrojených sil ČR není:",
+    "options": [
+      "a. Vojenská kancelář prezidenta republiky",
+      "b. Policie ČR",
+      "c. Armáda ČR",
+      "d. Hradní stráž"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Pod pojmem vedení lidí rozumíme:",
+    "options": [
+      "a. direktivní řízení zdrojů, vedoucí ke splnění našeho cíle",
+      "b. vytváření prostředí a účiné využívání schopností a dovedností a umění manažerů ovlivnit, usměrnit, stimulovat a motivovat spolupracovníky ke kvalitnímu a aktivnímu plnění cílů jejich práce",
+      "c. uplatňování kázeňských pravomocí vůči podřízeným"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Jaké práva mají zajatí kombatanti a civilisté, kteří se ocitnou v moci nepřátelské strany?",
+    "options": [
+      "a. mají právo na respektování svého života, důstojnosti, osobních práv a politického, náboženského a jiného přesvědčení, na chráněni proti veškerému násilnému a represivnímu jednání a na výměnu zpráv se svými rodinami a na obdržení pomoci",
+      "b. zajatí kombananti nemají žádné práva a civilní osoby mají právo na respektování svého života, důstojnosti, osobních práv a politického, náboženského a jiného přesvědčení",
+      "c. mají právo na respektování svého života, důstojnosti, osobních práv a politického, náboženského a jiného přesvědčení",
+      "d. v moci nepřátelské strany nemají až do skončení konfliktu žádné práva"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zavedení systému vedoucích praporčíků a vrchních praporčíků do AČR bylo v roce:",
+    "options": [
+      "a. 2005",
+      "b. 1995"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Do hodnostního sboru praporčíků PATŘÍ:",
+    "options": [
+      "a. Nadrotmistr",
+      "b. Rotný",
+      "c. Četař",
+      "d. Desátník"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaký kázeňský trest může ve své kázeňské pravomoci udělit velitel čety?",
+    "options": [
+      "a. napomenutí, písemná důtka, výstraha pro neodpovědný výkon služby",
+      "b. napomenutí, písemná důtka",
+      "c. napomenutí, výstraha pro neodpovědný výkon služby"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "V kterém vojenském předpise je podrobně řešena kázeňská pravomoc?",
+    "options": [
+      "a. Zákl – 3",
+      "b. Zákl – 1",
+      "c. Zákl – 2"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Jakou má kázeňskou pravomoc voják z povolání v hodnosti praporčíka?",
+    "options": [
+      "a. pravomoc velitele čety",
+      "b. pravomoc velitele roty",
+      "c. pravomoc velitele družstva"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kde jsou zakotvené stěžejní lidské práva a svobody?",
+    "options": [
+      "a. Ústava ČR",
+      "b. Zákon č. 221/1999 Sb. o vojácích z povolání",
+      "c. Listina základních práv a svobod"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Podle služebního zařazení a vojenské hodnosti vojáci mohou být navzájem?",
+    "options": [
+      "a. hodnostně vyšší a podřízený",
+      "b. nadřízený a podřízený",
+      "c. hodnostně vyšší a hodnostně nižší"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Po jaké době se automaticky kázeňský trest zahladí?",
+    "options": [
+      "a. po 12 měsících",
+      "b. po 6 měsících",
+      "c. po 9 měsících"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké jsou náležitosti „Rozhodnutí“?",
+    "options": [
+      "a. preambule, výrok, odůvodnění, poučení účastníků",
+      "b. preambule, odůvodnění, poučení účastníků",
+      "c. preambule, výrok, odůvodnění"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Personální rozkaz se vydává?",
+    "options": [
+      "a. z moci úřední a je posledním úkonem v řízení",
+      "b. na žádost vojáka a je prvním úkonem v řízení",
+      "c. z moci úřední a je prvním úkonem v řízení"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Co je řízení ve věcech služebního poměru?",
+    "options": [
+      "a. postup služebního orgánu, jehož účelem je vydání rozhodnutí, jimiž se v určité věci zakládají, mění nebo ruší práva anebo povinnosti konkrétní osoby",
+      "b. postup služebního orgánu, jehož účelem je vydání rozhodnutí, jimiž se v určité věci ruší práva anebo povinnosti konkrétní osoby nebo jimiž se v určité věci deklaruje, že taková osoba práva nebo povinnosti má anebo nemá",
+      "c. postup služebního orgánu, jehož účelem je vydání rozhodnutí, jimiž se v určité věci zakládají, mění nebo ruší práva anebo povinnosti konkrétní osoby nebo jimiž se v určité věci deklaruje, že taková osoba práva nebo povinnosti má anebo nemá"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Jak charakterizujeme korupci?",
+    "options": [
+      "a. Korupce je zneužití postavení, které je spojeno s porušením principu nestrannosti při rozhodování a je projevem nekázně v rozhodovacím (řídícím) procesu",
+      "b. Korupce je zneužití postavení, které je spojeno s porušením principu nestrannosti při rozhodování",
+      "c. Korupce je využití postavení, které je spojeno s porušením principu nestrannosti při rozhodování"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co rozumíte pod pojmem „úplatek“?",
+    "options": [
+      "a. oprávněná výhoda spočívající v přímém majetkovém obohacení nebo jiném zvýhodnění (např. i v protislužbě), které se dostává nebo má dostat uplácené osobě nebo s jejím souhlasem jiné osobě a na kterou není nárok",
+      "b. neoprávněná výhoda spočívající v přímém majetkovém obohacení nebo jiném zvýhodnění (např. i v protislužbě), které se dostává nebo má dostat uplácené osobě nebo s jejím souhlasem jiné osobě a na kterou není nárok",
+      "c. neoprávněná výhoda spočívající v jiném zvýhodnění (např. i v protislužbě), které se dostává nebo má dostat uplácené osobě nebo s jejím souhlasem jiné osobě a na kterou není nárok"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Voják z povolání je?",
+    "options": [
+      "a. občan, který vojenskou činnou službu vykonává jako svoje zaměstnání a je ve služebním poměru k České republice a může být povolán do služebního poměru jen na základě vlastní žádosti",
+      "b. občan, který vojenskou činnou službu vykonává jako svoje zaměstnání a je ve služebním poměru k České republice a je povolán do služebního poměru na základě rozhodnutí ředitele Krajského vojenského velitelství",
+      "c. občan, který vojenskou činnou službu vykonává jako svoje zaměstnání a je ve služebním poměru k České republice"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je vnitřní kontrola v rezortu MO?",
+    "options": [
+      "a. je to postup zaměstnanců a vojáků organizačních celků rezortu MO, kteří vykonávají kontrolu ve své působnosti na základě vnitřního předpisu nebo na základě Organizačního řádu Ministerstva obrany",
+      "b. je to postup zaměstnanců a vojáků organizačních celků rezortu MO, kteří vykonávají kontrolu ve své působnosti na základě vnitřního předpisu nebo na základě Organizačního řádu Ministerstva obrany a v souladu s právními předpisy",
+      "c. je to postup vojáků organizačních celků rezortu MO, kteří vykonávají kontrolu ve své působnosti na základě vnitřního předpisu nebo na základě Organizačního řádu Ministerstva obrany"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi základní principy duchovní služby AČR nepatří?",
+    "options": [
+      "a. Získávat nové členy pro svou víru a církev",
+      "b. Nabízet pomoc",
+      "c. Účinně a adekvátně asistovat",
+      "d. Vytvářet podmínky pro naplňování ústavně zaručených lidských práv, která souvisejí se svobodou vyznání",
+      "e. Podporovat velitele",
+      "f. Přispívat k rozvíjení a prohlubování hodnot a demokratických tradic evropské kultury v rezortu Ministerstva obrany"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jeden ze základních principů duchovní služby AČR je přispívat k rozvíjení a prohlubování hodnot.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Vojenský kaplan je pevnou součástí jednotky, ve které je služebně zařazen a je přímo podřízen:",
+    "options": [
+      "a. bohu",
+      "b. veliteli",
+      "c. psychologovi"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Má každý voják právo si pomoc duchovního pro sebe vyžádat, přijmout nebo odmítnout?",
+    "options": [
+      "Nepravda",
+      "Pravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Etický seminář pro základní praporčický kurz má téma rozpor myšlení a práce.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Který z následujících faktů o vojenském kaplanovy není pravdivý?",
+    "options": [
+      "a. O tématech víry nebo náboženství mluví, při každé příležitost a snaží se je prosazovat",
+      "b. Je vojákem z povolání se všemi právy a povinnostmi, které k tomu náleží. Psychická, zdravotní, fyzická způsobilost, základní výcvik a odborné znalosti. Je pevnou součástí jednotky, ve které je služebně zařazen a je přímo podřízen veliteli",
+      "c. Motivaci a schopnost ke službě čerpá ze svého vzdělání, životních zkušeností a ze své osobní víry",
+      "d. Služba vojenského kaplana v armádě je časově omezena. Na počátku se uvažovalo o službě zpravidla na 4 až 6 let (dnes kolem 10 let). Po službě se kaplani vrací zpět do služby v církvi",
+      "e. Patří k Duchovní službě AČR, kterou tvoří skupina všech vojenských kaplanů sloužících v Ozbrojených silách ČR. Duchovní službu vede hlavní kaplan, který odpovídá za odbornost vojenských kaplanů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je vojenský kaplan i psycholog?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Do kterého období jsou datovány počátky moderní vojenské psychologie?",
+    "options": [
+      "a. 16. století",
+      "b. Antika",
+      "c. Počátek 20. století"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Co je psychologická příprava?",
+    "options": [
+      "a. Proces zahrnující řadu samostatných a systémových prvků v různých fázích a úrovních přípravy a výkonu vojenské profese vedoucí ke zvyšování psychické odolnosti a připravenosti jednotlivců i jednotek",
+      "b. Pouze výuka témat zaměřených na zvládání zátěže v bojových situacích a jiném nasazení",
+      "c. Proces zahrnující řadu náhodně vybraných prvků v přípravě velitelů, které vedou k cílenému vytváření nevyváženosti v připravenosti jednotek vyjíždějících do zahraničních operací"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co tvoří základní úroveň psychologické pomoci?",
+    "options": [
+      "a. Pomoc sám sobě a pomoc od kolegů a nejbližšího okolí",
+      "b. Odborná pomoc ve vojenském zdravotnickém zařízení – návštěva psychologa nebo psychiatra",
+      "c. Vyplňování psychologických testů a dotazníků"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Při narození dítěte manželce nebo družce vojáka se služební volno poskytne na nezbytně nutnou dobu, nejvýše 1 den k převozu manželky nebo družky do zdravotnického zařízení a nejvýše 1 den k převozu zpět ze zdravotnického zařízení?",
+    "options": [
+      "a. Ano",
+      "b. Na posouzení velitele",
+      "c. Ne"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "K účasti na svatbě dítěte nebo rodiče se poskytne služební volno na 2 dny?",
+    "options": [
+      "a. Ano",
+      "b. Na posouzení velitele",
+      "c. Ne"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Mezi jiné úkony v obecném zájmu, při nichž se poskytuje služební volno nepatří?",
+    "options": [
+      "a. Činnost dárce při odběru krve a při aferéze",
+      "b. Činnost registrovaných kandidátů a členů volebních komisí při volbách do Parlamentu a zastupitelstev územní samosprávy",
+      "c. Činnost sudích při sportovních akcích mládeže",
+      "d. Činnost vedoucích táborů pro děti a mládež, jejich zástupců pro věci hospodářské a zdravotní, oddílových vedoucích, vychovatelů, instruktorů, popřípadě středních zdravotnických pracovníků v táborech pro děti a mládež"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Voják je povinen oznámit služebnímu orgánu změny v osobních údajích, a to do 10 dnů ode dne, kdy ke změnám došlo?",
+    "options": [
+      "Pravda",
+      "Nepravda (do 8)"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Který zákon upravuje vznik, změnu, zánik a obsah služebních poměrů vojáků z povolání?",
+    "options": [
+      "a. ZÁKON č. 221/1999 Sb., o vojácích z povolání (ze dne 14. září 1999) ve znění poslední úpravy – zákonem č.181/2018 ze dne 19. července 2018",
+      "b. ZÁKON č. 224/1999 Sb., o vojácích z povolání (ze dne 19. ledna 2005) ve znění pozdějších úprav",
+      "c. Zákl-1"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Proti závěrům služebního hodnocení nebo jeho jednotlivým částem může voják podat písemné námitky do 8 pracovních dnů ode dne, kdy se se služebním hodnocením seznámil?",
+    "options": [
+      "Pravda",
+      "Nepravda (do 3)"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi osobní údaje vojáka (§ 2a zákona), které zpracovávají služební orgány od vzniku služebního poměru do jeho zániku nepatří?",
+    "options": [
+      "a. státní občanství",
+      "b. vlastnictví nemovitého majetku v hodnotě nad 500 000,- kč",
+      "c. rodinný stav",
+      "d. zdravotní způsobilost k vojenské činné službě",
+      "e. jména, příjmení a adresy místa trvalého pobytu a bydliště osob blízkých.",
+      "f. adresu místa trvalého pobytu a bydliště",
+      "g. rodné číslo",
+      "h. akademické tituly a vědecké hodnosti s daty jejich přiznání",
+      "i. trestní bezúhonnost",
+      "j. jméno a příjmení, včetně předchozích jmen a příjmení a rodného příjmení",
+      "k. zvláštní schopnosti, dovednosti, zájmy a oprávnění",
+      "l. přehled o předchozích pracovních a služebních poměrech a o samostatných výdělečných činnostech",
+      "m. získané vzdělání"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Dle zásad kybernetické bezpečnosti by silné heslo mělo obsahovat minimálně kolik znaků?",
+    "options": [
+      "a. 12",
+      "b. 10",
+      "c. 14",
+      "d. 8"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Osvědčení fyzické osoby – vydává?",
+    "options": [
+      "a. ÚOOZ - úřad pro odhalování organizovaného zločinu",
+      "b. NBÚ - národní bezpečnostní úřad",
+      "c. VOZ - vojenské obranné zpravodajství",
+      "d. GIBS – generální inspekce bezpečnostních sborů"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Kolik máme klasifikací utajovaných informací?",
+    "options": [
+      "a. 4",
+      "b. 5",
+      "c. 3"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Vyber správnou definici utajované informace?",
+    "options": [
+      "a. informace v jakékoliv podobě zaznamenaná na jakémkoliv nosiči označená v souladu s tímto zákonem, jejíž vyzrazení nebo zneužití může způsobit újmu zájmu České republiky nebo může být pro tento zájem nevýhodné, a která je uvedena v seznamu utajovaných informací",
+      "b. informace pouze v písemné podobě označená v souladu s tímto zákonem, jejíž vyzrazení nebo zneužití může způsobit újmu zájmu České republiky nebo může být pro tento zájem nevýhodné, a která je uvedena v seznamu utajovaných informací",
+      "c. informace v jakékoliv podobě zaznamenaná na jakémkoliv nosiči označená v souladu s tímto zákonem, jejíž vyzrazení nebo zneužití může způsobit újmu zájmu AČR nebo může být pro nejvyšší představitele AČR citlivá"
+    ],
+    "correctAnswers": [0]
+  },
+   {
+    "question": "Kolik vyučovacích hodin ročně je povinen vedoucí organizační celku organizovat v rámci své působnosti vzdělávání personálu v oblasti prevence?",
+    "options": [
+      "a. minimálně 5 vyučovacích hodin",
+      "b. minimálně 2 vyučovací hodiny",
+      "c. minimálně 4 vyučovací hodiny"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Patologické hráčství má tyto stádia a to?",
+    "options": [
+      "a. stadium výher, stadium super výher, stadium proher a stadium zoufalství",
+      "b. stadium výher, stadium zoufalství a stadium opětovných výher",
+      "c. stadium výher, stadium proher a stadium zoufalství"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Mezi nelegální drogy řadíme látky, které jsou zakázané a jejich užívání nebo distribuování je rovněž trestné patří?",
+    "options": [
+      "a. halucinogeny, opiáty, konopné drogy, stimulanty",
+      "b. halucinogeny, opiáty, konopné drogy",
+      "c. opiáty, konopné drogy, stimulanty"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jak často má být prováděna kontrola v oblasti prevence rizikového chování?",
+    "options": [
+      "a. minimálně 4 x ročně",
+      "b. 4 x ročně",
+      "c. minimálně 1 x za 2 měsíce"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je cílem primární prevence?",
+    "options": [
+      "a. předcházení, minimalizace a eliminace aktuálního výskytu rizikového chování, prostřednictvím vybraných aktivit zvyšovat právní a zdravotní gramotnost personálu rezortu ministerstva obrany, jeho orientování ke zdravotnímu životnímu stylu, k rozvoji pozitivního sociálního chování, psychosociálních dovedností a ke zvládnutí zátěžových situací",
+      "b. předcházení, minimalizace a eliminace aktuálního výskytu rizikového chování, prostřednictvím vybraných aktivit zvyšovat právní a zdravotní gramotnost personálu rezortu ministerstva obrany, jeho orientování ke zdravotnímu životnímu stylu, k rozvoji pozitivního sociálního chování",
+      "c. předcházení, minimalizace a eliminace aktuálního výskytu rizikového chování, prostřednictvím vybraných aktivit zvyšovat právní a zdravotní gramotnost personálu rezortu ministerstva obrany"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je to workoholismus?",
+    "options": [
+      "a. je chorobná závislost na alkoholu",
+      "b. je chorobná závislost na práci",
+      "c. Je chorobná závislost na internetu"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Jaké části má Plán přípravy jednotky?",
+    "options": [
+      "a. záměr činnosti jednotky, pomocná nepovinná dokumentace",
+      "b. záměr činnosti roty na čtvrtletí, grafický přehled hlavních úkolů roty/baterie na čtvrtletí",
+      "c. plán přípravy jednotky, textová část, grafická část, textové vyhodnocení čtvrtletí",
+      "d. grafický přehled hlavních úkolů roty/baterie na čtvrtletí, pomocná nepovinná dokumentace"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Který vojenský předpis řeší plánování a hodnocení přípravy vojsk v AČR?",
+    "options": [
+      "a. Spoj-1-1",
+      "b. Vševojsk-52-30",
+      "c. Vševojsk-7-12",
+      "d. Prog-2-3"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Kde se zveřejňují změny v rozvrhu zaměstnání roty/baterie?",
+    "options": [
+      "a. V rozkaze velitele útvaru",
+      "b. V organizačním rozkazu velitele na rok",
+      "c. Není stanoveno",
+      "d. V rozkaze velitele roty"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké jsou dokumenty pro plánování činnosti na stupni rota/baterie?",
+    "options": [
+      "a. záměr činnosti roty/baterie na rok, záměr činnosti roty/baterie na čtvrtletí, záměr činnosti roty/baterie na měsíc, rozvrh zaměstnání",
+      "b. plán přípravy jednotky na čtvrtletí, rozvrh zaměstnání",
+      "c. plán činnosti roty/baterie na rok, plán činnosti roty/baterie na čtvrtletí",
+      "d. záměr činnosti jednotky na čtvrtletí, rozvrh zaměstnání"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Co je hlavním plánovacím dokumentem na stupni rota/baterie (jednotky)?",
+    "options": [
+      "a. Záměr činnosti roty/baterie na čtvrtletí",
+      "b. Záměr činnosti roty/baterie na měsíc",
+      "c. Rozvrh zaměstnání"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Je cílem kontrolního cvičení (KC) prověřit úroveň polní přípravy jednotek a útvarů, jejich štábů a dovednosti velitelů a příslušníků štábů připravovat a řídit cvičení?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je přednáška sdělovací metodou ústního podání nového učiva jednoduchými a přístupnými slovy v logické postupnosti za současného objasňování. Výklad je charakteristický pestrostí metodických obratů, umožňuje veliteli (učiteli) obracet se otázkami přímo na vojáky a zjišťovat, zda rozumějí tomu, co je jim objasňováno a současně řešit i otázku počátečního upevňování získaných vědomostí?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Představuje metoda v oblasti vojenského vyučování a výcviku promyšlený způsob práce velitele a vedoucího pracovníka a jím určovaný způsob činnosti podřízených?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Údržba zbraní po použití se provádí:",
+    "options": [
+      "a. Do dvou dnů od použití",
+      "b. Do dvou hodin od použití",
+      "c. Bezprostředně po použití"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Technická údržba se provádí na základě:",
+    "options": [
+      "a. Skutečně odpracovaných provozních jednotek a času",
+      "b. Skutečně odpracovaných provozních jednotek",
+      "c. Časového intervalu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jak často se provádí základní údržba?",
+    "options": [
+      "a. 1 x týdně",
+      "b. 1 x za měsíc",
+      "c. 1 x za 14 dní"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Velitel čety kontroluje stav techniky minimálně:",
+    "options": [
+      "a. 1 x za 14 dní",
+      "b. 1 x za týden",
+      "c. 1 x za měsíc"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Po dobu konání výcviku je řídící výcviku nadřízen všem ostatním cvičícím a odpovídá za jejich bezpečnost?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Musí řídící zaměstnání dbát na to, aby všichni příslušníci cvičící jednotky po celou dobu zaměstnání plnili stanovené úkoly?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zpracovává si písemnou přípravu každý řídící zaměstnání osobně v rozsahu potřebném pro kvalitní řízení zaměstnání a předkládá ji nadřízenému ke schválení?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi hlavní řečnické útvary nepatří?",
+    "options": [
+      "a. Diskusní příspěvek",
+      "b. Interwiev, tisková konference",
+      "c. Přednáška",
+      "d. Řeč politická a slavnostní",
+      "e. Slavnostní projevy (oslavný, smuteční, přípitek)",
+      "f. Neformální rozhovor",
+      "g. Referát"
+    ],
+    "correctAnswers": [5]
+  },
+  {
+    "question": "Mezi základní požadavky na kvalitu projevu patří:",
+    "options": [
+      "a. Hlasitost, rychlost, monotónnost a snaha předat co nejvíce informací a sdělení",
+      "b. Přehlednost, logika projevu, srozumitelnost, působivost",
+      "c. Používat dlouhá souvětí, číst text na plátně či z knih a příruček, používat slang, nářečí, žargon ivulgarismy pro zpestření"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "V přípravě prezentace je důležité:",
+    "options": [
+      "a. Zhodnotit složení posluchačů, vybrat prostředky pro prezentaci, stanovit si cíl, rozvrhnout čas a vybrat vhodné místo",
+      "b. Dosáhnout vědeckosti a vysoké odbornosti prezentace používáním cizích slov, odborných a technických výrazů, anglicismů, výpočtů a definic",
+      "c. Připravit si dostatek obrázků, filmů, grafů, čísel a citací z knih, skript a předpisů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zásady mluveného projevu jsou:",
+    "options": [
+      "a. Pečlivá příprava svého sdělení, přirozenost, oční kontakt, dobrá jazyková forma, ukončení projevu v pravou chvíli",
+      "b. Čtení textu ze skript bez očního kontaktu s cílem neudělat chybu. Vkládání prvků teatrálnosti, smyšlených příběhů a nepravdivých historek k probuzení zájmu",
+      "c. Silný hlas, křik, vulgarismy a tresty pro dosažení ukázněnosti a pozornosti posluchačů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Cílem prezentace z hlediska psychologie prvního dojmu je upoutat pozornost, vzbudit zájem, nebo dát prezentaci jako dárek.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Projev rozdělen do pěti fází.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Doporučené fáze prezentace (projevu) jsou?",
+    "options": [
+      "a. Zahájení (zaujetí, vytvoření kontaktu). Argumentace (chronologické uspořádání argumentů), zdolávání námitek („předem připravená polemika k předloženým argumentům“), závěr (stručné shrnutí co jsme řekli)",
+      "b. Prezentaci není nutno fázovat, stačí myšlenky prezentovat tak, jak mi přijdou na mysl, případně hovořit o tom, co zajímá posluchače",
+      "c. Úvod (vytvoření atmosféry strachu s cílem dosažení co největší pozornosti a poslušnosti). Hlavní část (moralizování, poučování, kritizování). Závěr (nepřipustit diskuzi, námitky, ignorovat jiné než své názory a myšlenky)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdo řídí proces ZPZV u útvaru?",
+    "options": [
+      "a. velitel",
+      "b. plánovací oddělení",
+      "c. náčelník štábu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kolik fází má proces ZPVZ?",
+    "options": [
+      "a. 3",
+      "b. 4",
+      "c. 5"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kolik části obsahuje formulář ODCR?",
+    "options": [
+      "a. 3",
+      "b. 4",
+      "c. 5"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Proces ZPVZ v AČR je zaměřen zejména na přípravu a nasazení jednotek AČR v operacích (doma i v zahraničí) a na jejich přípravu při běžném výcviku (s důrazem na důležitá cvičení).",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zkratka ZPVZ znamená Získávání poznatků a využívání zkušeností?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdo vykonává proces ZPVZ u útvaru?",
+    "options": [
+      "a. zástupce velitele útvaru",
+      "b. specialista ZPVZ",
+      "c. všichni vojáci útvaru"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "SWOT je zkratka z anglického originálu:",
+    "options": [
+      "a. Strenghts – silné stránky, Weaknesses – slabé stránky, Opportunities – příležitosti, Threats – hrozby",
+      "b. Stress – tíseň, Weaponry – zbraně, Obstecles – překážky, Threat – ohrožení",
+      "c. Strenghts – silné stránky, Weaknesses – slabé stránky, Opportunities – příležitosti, Threatment – úprava"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Metoda PESTLE hodnotí tyto faktory vnějšího prostředí:",
+    "options": [
+      "a. politiku, elektrifikaci, stát, techniku, lokální, emise",
+      "b. parlamentářské, ekonomické, státní, technologické, liberální, ekologické",
+      "c. politické, ekonomické, sociální, technologické, legislativní, ekologické"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "SWOT analýza řeší:",
+    "options": [
+      "a. vnitřní analýzu (silné a slabé stránky) a vnější analýzu (příležitosti a hrozby)",
+      "b. vnitřní analýzu (příležitosti a slabé stránky) a vnější analýzu (silné stránky a hrozby)",
+      "c. vnitřní analýzu (silné stránky a příležitosti) a vnější analýzu (slabé stránky a hrozby)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zásady Brainstormingu:",
+    "options": [
+      "a. jde o kvantitu nápadů, i ten zdánlivě nejhloupější nápad může inspirovat ostatní",
+      "b. jde o kvalitu nápadů a ne o kvantitu. Hloupé nápady se nezapisují",
+      "c. jde o kvantitu nápadů, nic se zapisovat nemusí. Poté se vybere nejlepší varianta"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Odmořování je?",
+    "options": [
+      "a. odstranění bojové chemické látky",
+      "b. zničení bojové biologické látky",
+      "c. odstranění radioaktivní látky"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Může střelec omezit vliv zpětného rázu zbraně na střelbu?",
+    "options": [
+      "a. Ne, nemůže. Zpětný ráz zbraně při střelbě je vždy stejný.",
+      "b. Ano, může. A to zejména správnou polohou a držením zbraně.",
+      "c. Ano, může. Při střelbě neomezenou dávkou bude zpětný ráz téměř zanedbatelný."
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Kdy nejpozději se musí řídící střelby dostavit na střelnici v den provedení střeleb?",
+    "options": [
+      "a. V takovém čase, aby nejpozději hodinu před zahájením střeleb převzal hlášení od podřízených funkcionářů o připravenosti střelnice a pracovišť.",
+      "b. Nejpozději v čas zahájení střeleb. Řídící střelby je povinen být fyzicky přítomen střeleb od jejich zahájení až do ukončení.",
+      "c. Řídící střelby není povinen být fyzicky přítomen u provedení střeleb."
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Pokud by došlo během manuálního napínání kohoutku k jeho vyklouznutí, co zabrání nechtěnému výstřelu?",
+    "options": [
+      "a. Uzamykací ozuby v horní části hlavně",
+      "b. Dvojčinná funkce spoušťového mechanizmu (DA)",
+      "c. Bezpečnostní ozub"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Při navazování a kontrole spojení se srozumitelnost signálu oznamuje používá fráze „SLYŠÍM“ a stupnice:",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Vyjmenuj jednu citlivou informaci.",
+    "options": [
+      "POLOHA"
+    ],
+    "correctAnswers": []
+  },
+  {
+    "question": "Vyber správné hláskování slova PILOT dle anglické hláskovací tabulky:?",
+    "options": [
+      "a. PAPA, INDIA, LAMA, OSKAR, TAPIR",
+      "b. PAPA, INDIA, LIMA, OSKAR, TANGO",
+      "c. PAPA, INDIA, LIMET, OSKAR, TANGO",
+      "d. PAPA, INDIGO, LIMA, OSKAR, TANGO"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi prostředky individuální ochrany nepatří?",
+    "options": [
+      "a. Jednorázová pláštěnka JP-90 (JP-75A)",
+      "b. IPB-80 (individuální protichemický balíček)",
+      "c. Obličejová maska OM-90",
+      "d. Filtrační ochranný převlek FOP-96"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Podle jakého algoritmu se postupuje při ošetření raněného?",
+    "options": [
+      "a. C1 A1BC2A2DE",
+      "b. C1 ABC2DE",
+      "c. ABCDEFG",
+      "d. CABDE"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Při postupu dle algoritmu označuje písmeno D?",
+    "options": [
+      "a. D - Disability (vyšetření vědomí, ošetření poranění hlavy)",
+      "b. D - Dental (vyšetření chrupu)",
+      "c. D - Drugs (podání léků tišících bolest)",
+      "d. D - Disease (prověření onemocnění nakažlivou chorobou)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Čl. 26 Cvičebního řádu-Zákl-2 hovoří?",
+    "options": [
+      "a. Voják je povinen",
+      "b. Podřízený je povinen",
+      "c. Důstojník je povinen"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Pro výcvik jednotlivce se vojáci rozdělují do družstev podle počtu velitelů. V jednom družstvu nesmí být více než?",
+    "options": [
+      "a. 15 vojáků",
+      "b. 13 vojáků",
+      "c. 10 vojáků"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Čl. 25 Cvičebního řádu-Zákl-2 hovoří?",
+    "options": [
+      "a. Velitel útvaru je povinen",
+      "b. Náčelník úseku je povinen",
+      "c. Velitel (nadřízený) je povinen"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Při navazování a kontrole spojení se pro hodnocení slyšitelnosti uvede fráze: „SLYŠÍM VELMI DOBŘE“, „SLYŠÍM DOBŘE“, „SLYŠÍM SLABĚ“, „SLYŠÍM VELMI SLABĚ“",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi hlavní řečnické útvary nepatří?",
+    "options": [
+      "a. Diskusní příspěvek",
+      "b. Interwiev, tisková konference",
+      "c. Přednáška",
+      "d. Řeč politická a slavnostní",
+      "e. Slavnostní projevy (oslavný, smuteční, přípitek)",
+      "f. Neformální rozhovor",
+      "g. Referát"
+    ],
+    "correctAnswers": [5]
+  },
+  {
+    "question": "Mezi základní požadavky na kvalitu projevu patří:",
+    "options": [
+      "a. Hlasitost, rychlost, monotónnost a snaha předat co nejvíce informací a sdělení",
+      "b. Přehlednost, logika projevu, srozumitelnost, působivost"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "V přípravě prezentace je důležité:",
+    "options": [
+      "a. Zhodnotit složení posluchačů, vybrat prostředky pro prezentaci, stanovit si cíl, rozvrhnout čas a vybrat vhodné místo",
+      "b. Dosáhnout vědeckosti a vysoké odbornosti prezentace používáním cizích slov, odborných a technických výrazů, anglicismů, výpočtů a definic",
+      "c. Připravit si dostatek obrázků, filmů, grafů, čísel a citací z knih, skript a předpisů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zásady mluveného projevu jsou:",
+    "options": [
+      "a. Pečlivá příprava svého sdělení, přirozenost, oční kontakt, dobrá jazyková forma, ukončení projevu v pravou chvíli",
+      "b. Čtení textu ze skript bez očního kontaktu s cílem neudělat chybu. Vkládání prvků teatrálnosti, smyšlených příběhů a nepravdivých historek k probuzení zájmu",
+      "c. Silný hlas, křik, vulgarismy a tresty pro dosažení ukázněnosti a pozornosti posluchačů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Cílem prezentace z hlediska psychologie prvního dojmu je upoutat pozornost, vzbudit zájem, nebo dát prezentaci jako dárek.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Projev rozdělen do pěti fází.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Doporučené fáze prezentace (projevu) jsou?",
+    "options": [
+      "a. Zahájení (zaujetí, vytvoření kontaktu). Argumentace (chronologické uspořádání argumentů), zdolávání námitek („předem připravená polemika k předloženým argumentům“), závěr (stručné shrnutí co jsme řekli)",
+      "b. Prezentaci není nutno fázovat, stačí myšlenky prezentovat tak, jak mi přijdou na mysl, případně hovořit o tom, co zajímá posluchače",
+      "c. Úvod (vytvoření atmosféry strachu s cílem dosažení co největší pozornosti a poslušnosti). Hlavní část (moralizování, poučování, kritizování). Závěr (nepřipustit diskuzi, námitky, ignorovat jiné než své názory a myšlenky)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdo řídí proces ZPZV u útvaru?",
+    "options": [
+      "a. velitel",
+      "b. plánovací oddělení",
+      "c. náčelník štábu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kolik fází má proces ZPVZ?",
+    "options": [
+      "a. 3",
+      "b. 4",
+      "c. 5"
+    ],
+    "correctAnswers": []
+  },
+  {
+    "question": "Kolik části obsahuje formulář ODCR?",
+    "options": [
+      "a. 3",
+      "b. 4",
+      "c. 5"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Proces ZPVZ v AČR je zaměřen zejména na přípravu a nasazení jednotek AČR v operacích (doma i v zahraničí) a na jejich přípravu při běžném výcviku (s důrazem na důležitá cvičení).",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zkratka ZPVZ znamená Získávání poznatků a využívání zkušeností?",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdo vykonává proces ZPVZ u útvaru?",
+    "options": [
+      "a. zástupce velitele útvaru",
+      "b. specialista ZPVZ",
+      "c. všichni vojáci útvaru"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "SWOT je zkratka z anglického originálu:",
+    "options": [
+      "a. Strenghts – silné stránky, Weaknesses – slabé stránky, Opportunities – příležitosti, Threats – hrozby",
+      "b. Stress – tíseň, Weaponry – zbraně, Obstecles – překážky, Threat – ohrožení",
+      "c. Strenghts – silné stránky, Weaknesses – slabé stránky, Opportunities – příležitosti, Threatment – úprava"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Metoda PESTLE hodnotí tyto faktory vnějšího prostředí:",
+    "options": [
+      "a. politiku, elektrifikaci, stát, techniku, lokální, emise",
+      "b. parlamentářské, ekonomické, státní, technologické, liberální, ekologické",
+      "c. politické, ekonomické, sociální, technologické, legislativní, ekologické"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "SWOT analýza řeší:",
+    "options": [
+      "a. vnitřní analýzu (silné a slabé stránky) a vnější analýzu (příležitosti a hrozby)",
+      "b. vnitřní analýzu (příležitosti a slabé stránky) a vnější analýzu (silné stránky a hrozby)",
+      "c. vnitřní analýzu (silné stránky a příležitosti) a vnější analýzu (slabé stránky a hrozby)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Zásady Brainstormingu:",
+    "options": [
+      "a. jde o kvantitu nápadů, i ten zdánlivě nejhloupější nápad může inspirovat ostatní",
+      "b. jde o kvalitu nápadů a ne o kvantitu. Hloupé nápady se nezapisují",
+      "c. jde o kvantitu nápadů, nic se zapisovat nemusí. Poté se vybere nejlepší varianta"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Odmořování je?",
+    "options": [
+      "a. odstranění bojové chemické látky",
+      "b. zničení bojové biologické látky",
+      "c. odstranění radioaktivní látky"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Může střelec omezit vliv zpětného rázu zbraně na střelbu?",
+    "options": [
+      "a. Ne, nemůže. Zpětný ráz zbraně při střelbě je vždy stejný.",
+      "b. Ano, může. A to zejména správnou polohou a držením zbraně.",
+      "c. Ano, může. Při střelbě neomezenou dávkou bude zpětný ráz téměř zanedbatelný."
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Kdy nejpozději se musí řídící střelby dostavit na střelnici v den provedení střeleb?",
+    "options": [
+      "a. V takovém čase, aby nejpozději hodinu před zahájením střeleb převzal hlášení od podřízených funkcionářů o připravenosti střelnice a pracovišť.",
+      "b. Nejpozději v čas zahájení střeleb. Řídící střelby je povinen být fyzicky přítomen střeleb od jejich zahájení až do ukončení.",
+      "c. Řídící střelby není povinen být fyzicky přítomen u provedení střeleb."
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Pokud by došlo během manuálního napínání kohoutku k jeho vyklouznutí, co zabrání nechtěnému výstřelu?",
+    "options": [
+      "a. Uzamykací ozuby v horní části hlavně",
+      "b. Dvojčinná funkce spoušťového mechanizmu (DA)",
+      "c. Bezpečnostní ozub"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Při navazování a kontrole spojení se srozumitelnost signálu oznamuje používá fráze „SLYŠÍM“ a stupnice: ČISTĚ, ČITELNĚ, ZKRESLENĚ, PŘERUŠOVANĚ, NEČITELNĚ.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Vyjmenuj jednu citlivou informaci.",
+    "options": [
+      "POLOHA"
+    ],
+    "correctAnswers": []
+  },
+  {
+    "question": "Vyber správné hláskování slova PILOT dle anglické hláskovací tabulky?",
+    "options": [
+      "a. PAPA, INDIA, LAMA, OSKAR, TAPIR",
+      "b. PAPA, INDIA, LIMA, OSKAR, TANGO",
+      "c. PAPA, INDIA, LIMET, OSKAR, TANGO",
+      "d. PAPA, INDIGO, LIMA, OSKAR, TANGO"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Mezi prostředky individuální ochrany nepatří?",
+    "options": [
+      "a. Jednorázová pláštěnka JP-90 (JP-75A)",
+      "b. IPB-80 (individuální protichemický balíček)",
+      "c. Obličejová maska OM-90",
+      "d. Filtrační ochranný převlek FOP-96"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Podle jakého algoritmu se postupuje při ošetření raněného?",
+    "options": [
+      "a. C1 A1BC2A2DE",
+      "b. C1 ABC2DE",
+      "c. ABCDEFG",
+      "d. CABDE"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Při postupu dle algoritmu označuje písmeno D?",
+    "options": [
+      "a. D - Disability (vyšetření vědomí, ošetření poranění hlavy)",
+      "b. D - Dental (vyšetření chrupu)",
+      "c. D - Drugs (podání léků tišících bolest)",
+      "d. D - Disease (prověření onemocnění nakažlivou chorobou)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Čl. 26 Cvičebního řádu-Zákl-2 hovoří?",
+    "options": [
+      "a. Voják je povinen",
+      "b. Podřízený je povinen",
+      "c. Důstojník je povinen"
+    ],
+    "correctAnswers": []
+  },
+  {
+    "question": "Pro výcvik jednotlivce se vojáci rozdělují do družstev podle počtu velitelů. V jednom družstvu nesmí být více než?",
+    "options": [
+      "a. 15 vojáků",
+      "b. 13 vojáků",
+      "c. 10 vojáků"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Čl. 25 Cvičebního řádu-Zákl-2 hovoří?",
+    "options": [
+      "a. Velitel útvaru je povinen",
+      "b. Náčelník úseku je povinen",
+      "c. Velitel (nadřízený) je povinen"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Při navazování a kontrole spojení se pro hodnocení slyšitelnosti uvede fráze: „SLYŠÍM VELMI DOBŘE“, „SLYŠÍM DOBŘE“, „SLYŠÍM SLABĚ“, „SLYŠÍM VELMI SLABĚ“. ",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké jsou kondiční pohybové schopnosti?",
+    "options": [
+      "a. rychlost, síla a vytrvalost",
+      "b. obratnost, rychlost",
+      "c. síla a vytrvalost"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdo vede výcvik ve speciální tělesné přípravě, který je spojen se zvýšeným rizikem úrazu?",
+    "options": [
+      "a. Kdokoliv a nemusí mít žádné osvědčení",
+      "b. tento výcvik se nevede",
+      "c. vedoucí instruktoři a instruktoři speciální tělesné přípravy s platným osvědčením"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "V jakém rozsahu se organizuje základní a speciální tělesná příprava?",
+    "options": [
+      "a. Organizuje se v rozsahu nejméně 8 hodin týdně a u výkonných vojenských letců a vojenského obsluhujícího personálu v rozsahu nejméně 10 hodin týdně.",
+      "b. Organizuje se v rozsahu nejméně 4 hodin týdně a u výkonných vojenských letců a vojenského obsluhujícího personálu v rozsahu nejméně 6 hodin týdně.",
+      "c. Organizuje se v rozsahu nejméně 6 hodin týdně a u výkonných vojenských letců a vojenského obsluhujícího personálu v rozsahu nejméně 8 hodin týdně."
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Pohybová dovednost je tedy učením získaný předpoklad účelně, rychle a úsporně řešit daný pohybový úkol.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Metodotvorné komponenty posilování jsou: Velikost odporu, rychlost pohybu, počet opakování (trvání).",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Aktivní regenerace je spánek, sauna, vířivka.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Obsahem základní tělesné přípravy jsou pohybové aktivity obecného základu tělovýchovných činností, zejména gymnastiky, atletiky, plavání, kolektivních sportů, individuálních sportů, kontrolních cvičení a testů.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Hlavním dokumentem pro plánování a realizaci tělovýchovného procesu v rezortu MO je Zákon o VZP 221/1999.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Služební tělesná výchova se dělí na základní, speciální a výběrovou.",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdo se v rámci kontroly v rezortu MO považuje za kontrolovanou osobu?",
+    "options": [
+      "fyzická osoba, která je služebně zařazena v organizačním celku a to pouze v souvislosti s její služební činností",
+      "organizační celek",
+      "organizační celek nebo fyzická osoba, která je pracovně zařazena v organizačním celku a to pouze v souvislosti s její pracovní činností",
+      "Organizační celek nebo fyzická osoba, která je služebně nebo pracovně zařazena v organizačním celku, a to pouze v souvislosti s její služební, pracovní nebo studijní činností."
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Brainstorming patří mezi metody?",
+    "options": [
+      "nepatří ani do jedné z metod",
+      "Vnitřní analýzy",
+      "vnějsí analýzy",
+      "analýza Brainstormingu neexistuje"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Při střelbách musí být zelenou reflexní vestou označen?",
+    "options": [
+      "velitel výdejny munice",
+      "řídící střelby",
+      "pyrotechnik",
+      "Řídící střelby na úseku"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Vojákovi, kterému byla nařízena služební pohotovost, náleží příplatek za služební pohotovost ve výši 3000 Kč?",
+    "options": [
+      "V kalendářním měsíci, ve kterém služební pohotovost zasáhla alespoň 20 dnů",
+      "tak dlouhá hotovost neexistuje",
+      "V kalendářním měsíci, ve kterém služební pohotovost zasáhla alespoň 25 dnů",
+      "V kalendářním měsíci, ve kterém služební pohotovost zasáhla alespoň 30 dnů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Velitel čety kontroluje stav techniky minimálně?",
+    "options": [
+      "1 x za týden",
+      "1x za měsíc",
+      "1 x za 14 dní"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Opakovací metody příslušníků AČR slouží?",
+    "options": [
+      "k upevňování návyků vojáků",
+      "K upevňování vědomostí a k formování především individuální dovedností a návyků vojáků",
+      "k formování dovednosti vojáků",
+      "k vyloučení chyb v operacích"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "K ochraně obličeje, očí a dýchacích orgánů uživatele proti bojovým chemickým, radioaktivním a bojovým biologickým látkám ve formě plynů par a aerosolů slouží?",
+    "options": [
+      "Jednorázová pláštěnka JP-90 (JP75A)",
+      "IPB-80 (individuální protichemický balíček)",
+      "Obličejová maska OM-90 v kombinaci s filtrem OF-90",
+      "Filtrační ochranný převlek FOP-96"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "To, že se člověk nemůže vzdát lidských práv, označujeme jako?",
+    "options": [
+      "nepromlčitelnost lidských práv",
+      "univerzálnost lidských práv",
+      "Nezrušitelnost a nezcizitelnost lidských práv",
+      "nezadatelnost lidských práv"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Který vojenský předpis řeší plánování a hodnocení přípravy vojsk v AČR?",
+    "options": [
+      "Prog-2-3",
+      "Spoj-1-1",
+      "Vševojsk-52-30",
+      "Vševojsk-7-12"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Co je tzv. listina základních práv a svobod české republiky?",
+    "options": [
+      "dokument přijatý v roce 1992, právně nadřazený Ústavě ČR",
+      "Dokument tvořící součást ústavního pořádku ČR, který se věnuje základním okruhům lidských práv",
+      "dokument tvořící součást právního pořádku ČR, který byl přijat v roce vstupu ČR do NATO (1999)",
+      "dokument tvořený rozhodnutími Úřadu veřejného ochránce práv (tzv. ombudsmana)"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Inlek vz.10 je?",
+    "options": [
+      "Škrtidlo obsažené v autolékárničce",
+      "Jeden typ nosítek používaný AČR",
+      "Automatizovaný externí defibrilátor",
+      "Individuální lékárnička"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Co potřebujeme k tomu, abychom mohli přijímat dary věcné i jiné (úsměvy, ochotu, spolupráci apod.) od svého okolí?",
+    "options": [
+      "upínat svou mysl na to, co chceme s pocitem, že to ale není možné",
+      "Dobré naladění, otevřenost a vnímavost vůči všemu příjemnému",
+      "záleží jen na okolí, co nám dá či nedá, my nad tím nemáme moc",
+      "nastavené dlaně"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Písemná příprava?",
+    "options": [
+      "slouží k evidenci vojáků na zaměstnání",
+      "řídící zaměstnání ji zpracovává osobně a předkládá ji nadřízenému ke schválení",
+      "Je nezbytným podkladem pro plánování přípravy jednotky"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Voják z povolání v průběhu služebního poměru vykonává službu?",
+    "options": [
+      "Podle potřeb české republiky na území ČR i v zahraničí",
+      "na základě rozhodnutí služebního orgánu na území ČR i v zahraničí",
+      "na základě výsledků služebního hodnocení a splněné doby v zastávané hodnosti",
+      "na základě personálního zámyslu a rozhodnutí velitele příslušné součásti"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Osvědčení fyzické osoby – vydá národní bezpečnostní úřad fyzické osobě, která je státním občanem ČR nebo státním příslušníkem členského státu evropské unie nebo organizace severoatlantické smlouvy, splňuje podmínky uvedené jako u oznámení (svéprávnost, 18 let, bezúhonnost) je osobnostně způsobilá a je b bezpečnostně spolehlivá?",
+    "options": [
+      "Nepravda",
+      "Pravda"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Vojákovi, kterému byla nařízena služební pohotovost, náleží příplatek za služební pohotovost ve výši 1500 kč?",
+    "options": [
+      "V kalendářním měsíci, ve kterém služební pohotovost zasáhla alespoň do 10 dnů",
+      "V kalendářním měsíci, ve kterém služební pohotovost zasáhla alespoň do 20 dnů",
+      "V kalendářním měsíci, ve kterém služební pohotovost zasáhla alespoň do 30 dnů",
+      "V kalendářním měsíci, ve kterém služební pohotovost zasáhla alespoň do 15 dnů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Písemná příprava má obsahovat a jasně vyjadřovat?",
+    "options": [
+      "časový rozsah přípravy, cíle a úkoly a základní informace k organizaci přípravy",
+      "počet vojáků a místo konání",
+      "údaje o vojenském materiálu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Voják z povolání je",
+    "options": [
+      "Občan, který vojenskou činnost vykonává jako svoje zaměstnání a je ve služebním poměru k ČR",
+      "občan, který službu vykonává jako svoje povolání na základě dobrovolnosti",
+      "občan, který službu vykonává jako svoje povolání a je ve služebním poměru k České republice",
+      "občan, který vojenskou činnou službu vykonává jako svoje zaměstnání a je v pracovním poměru"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Velitelé a nadřízení jsou povinni ve vztahu k podřízeným zejména",
+    "options": [
+      "zabezpečovat, aby se při výkonu služby dostatečně snažili splnit stanovené úkoly",
+      "umět diskutovat s podřízenými",
+      "zabezpečovat, aby byli pro výkon služby odborně připraveni a vycvičeni",
+      "vést je k plenění občanských povinností"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Náměrná je",
+    "options": [
+      "je dráha střely k cíli",
+      "Přímka, která je prodloužením osy hlavně v okamžiku výstřelu",
+      "Přímka, která prochází od oka střelce přes mířidla k záměrnému bodu"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Do jaké hloubky provádíme stlačení hrudníku při provádění kardio PR u dospělého jedince",
+    "options": [
+      "5 - 6 cm",
+      "4 - 5 cm",
+      "7 - 8 cm",
+      "1 - 3 cm"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezera mezi vojáky (vozidly), jednotkami a útvary v tvaru do hloubky se nazývá",
+    "options": [
+      "Vzdálenost",
+      "Zad tvaru",
+      "Křídlo",
+      "Čelo"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké jsou formální náležitosti rozhodnutí",
+    "options": [
+      "výrok, odůvodnění, poučení účastníků",
+      "Preambule, výrok, odůvodnění",
+      "Preambule, odůvodnění, poučení účastníků",
+      "Preambule, výrok, odůvodnění, poučení účastníků"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Podle předpisu vševojsk -4-2 cvičení střeleb",
+    "options": [
+      "podmínky, hodnocení a průběh si určuje řídící sám",
+      "Mají pevně stanovené podmínky, hodnocení a průběh podle tohoto předpisu",
+      "podmínky, hodnocení a průběh určuje nadřízený velitel řídícího střeleb",
+      "nemají pevně stanovené podmínky hodnocení a průběh podle tohoto předpisu"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Údržba ručních zbraní se řídí",
+    "options": [
+      "Podle rozkazu velitele jednotky",
+      "podle směrnice vydané náčelníkem logistiky",
+      "individuálně, podle výsledků profilaktiky u jednotky",
+      "Návodem výrobce, nebo předpisem k dané zbrani"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Při střelbách musí být zelenou reflexní vestou označen",
+    "options": [
+      "pyrotechnik",
+      "řídící střelby",
+      "velitel výdejny munice",
+      "Řídící střelby na úseku"
+    ],
+    "correctAnswers": [3]
+  },
+  {
+    "question": "Co je to mobbing a bossing",
+    "options": [
+      "jsou to legitimní styly řízení a velení",
+      "Jedná se o skryté a z hlediska trestní odpovědnosti těžko postižitelné jednání, když je oběť formou psychického nátlaku donucena splnit podmínky agresora tzv. z vlastní vůle",
+      "jedná se o vše, co je v rozporu s vojenskými řády a předpisy",
+      "rozvíjí tradiční vojenské hodnoty, jako je odpovědnost a smysl pro povinnost, obětavost, odvaha, věrnost a čest."
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Voják je povinen oznámit služebnímu orgánu změny v osobních údajích, a to do 8 dnů ode dne, kdy ke změnám došlo",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Za řízení procesu ZPVZ odpovídá velitel (vedoucí)",
+    "options": [
+      "Pravda",
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "velitel družstva kontroluje stav svěřené techniky minimálně",
+    "options": [
+      "1 x za 14 dní",
+      "1x za týden",
+      "1 x za měsíc",
+      "denně"
+    ],
+    "correctAnswers": [1]
+  },
+  {
+    "question": "Personální bezpečnost je",
+    "options": [
+      "tvořena systémem opatření k zajišťování a ověřování podmínek pro přístup podnikatele k utajovaným informacím a k zajištění nakládání s utajovanou informací u podnikatele v souladu s tímto zákonem",
+      "tvořena systémem, jejichž cílem je zajistit důvěrnost, integritu a dostupnost utajovaných informací, s nimiž tyto systémy nakládají a odpovědnost správy a uživatele za jejich činnost v informačním nebo komunikačním systému",
+      "Tvořena výběrem fyzických osob, které mají přístup k utajovaným informacím, ověřování podmínek pro jejich přístup k utajovaným informacím jejich výchova a ochrana",
+      "tvořena systémem opatření, která mají neoprávněné osobě zabránit nebo ztížit přístup k utajovaným informacím, popřípadě přístup nebo pokus o něj zaznamenat."
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Jaké kázeňské odměny mohou být uděleny vojákovy z povolání",
+    "options": [
+      "písemná pochvala, prominutí dříve uloženého kázeňského trestu, věcný dar",
+      "pochvala, prominutí dříve uloženého kázeňského trestu, peněžitý dar",
+      "Písemná pochvala prominutí dříve uloženého kázeňského trestu nebo jeho zahlazení peněžitý nebo věcný dar",
+      "písemná pochvala, prominutí dříve uloženého kázeňského trestu nebo jeho zahlazení"
+    ],
+    "correctAnswers": [2]
+  },
+  {
+    "question": "Mezi povinnosti, které jako vojáci jsme povinni dodržovat patří",
+    "options": [
+      "Přesvědčit se, zda máme v pořádku svou zbraň a zda je zajištěna, zda máme v náležitém stavu svěřenou bojovou a jinou techniku, munici a ostatní součástky výstroje a výzbroje",
+      "Vyřídit telefonní hovor, je-li pro nás důležitý",
+      "opustit tvar, pokud to považuje za nezbytné",
+      "Mluvit ve tvaru kdykoliv to považuje za důležité"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdo provádí písemný záznam o seznámení fyzické osoby s jejími právy a povinnostmi v oblasti ochrany utajovaných informací a s následky jejich porušení:",
+    "options": [
+      "Náčelník KIS"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Průkazníkové (detekční) papírky PP-3 jsou určeny k detekci nervově paralytických bojových chemických látek v ovzduší ve formě par a aerosolů a ve vodním extraktu z potravin, na površích bojové techniky, výzbroje a na terénu.",
+    "options": [
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Pokud velitel provádí výběr varianty činností, která je nejpříznivější pro splnění bojového úkolu, popisujeme tuto činnost jako:",
+    "options": [
+      "rozhodování"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Ženijní podpora zahrnuje možnosti:",
+    "options": [
+      "opatření k podpoře pohybu (cesty, mosty), opatření k omezení činnosti nepřítele (zátarasy), opatření k uchování bojeschopnosti vojsk (ochranné stavby), opatření všeobecné ženijní podpory."
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je vnitřní kontrola v rezortu MO:",
+    "options": [
+      "je to postup zaměstnanců a vojáků organizačních celků rezortu MO, kteří vykonávají kontrolu ve své působnosti na základě vnitřního předpisu nebo na základě organizačního řádu Ministerstva obrany a v souladu s právními předpisy"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Která z následujících vět podle vás patří do Listiny základních práv a svobod:",
+    "options": [
+      "lidé jsou svobodní a rovní v důstojnosti i v právech. Základní práva a svobody jsou nezadatelné, nezcizitelné, nepromlčitelné a nezrušitelné"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Z hlediska intenzity můžeme provést průzkum dvěma způsoby?",
+    "options": [
+      "normálně – podrobně"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi jednotky bojové podpory Vzdušných sil nepatří:",
+    "options": [
+      "22. základna vrtulníkového letectva Sedle, Vicenice u Náměště nad Oslavou"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je to diskriminace?",
+    "options": [
+      "je rozdělování nebo rozlišování, které objekt poškozuje např. neuznává rovnosti mezi lidmi, omezování práv určité kategorie osob"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Na stupni PRAPOR se zpracovávají tyto plánovací dokumenty:",
+    "options": [
+      "plán činnosti na rok a upřesnění plánu činnosti na měsíc"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co tvoří základní úroveň psychologické pomoci?",
+    "options": [
+      "Pomoc sám sobě a pomoc od kolegů a nejbližšího okolí"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Které členské státy Varšavské smlouvy se nepodílely na invazi do Československa v roce 1968?",
+    "options": [
+      "Rumunsko, Albánie"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jak se jmenoval předseda protektorátní vlády, který byl nacisty popraven?",
+    "options": [
+      "Alois Josef Eliáš"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co si představíme pod pojmem mírová operace:",
+    "options": [
+      "aktivity, které pokrývají celou škálu multifunkčních operací zaměřených na nastolení a udržení míru"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je podstatou zásady rozlišování?",
+    "options": [
+      "strany konfliktu jsou povinny rozlišovat mezi osobami a objekty civilními na jedné straně a příslušníky ozbrojených sil a objekty vojenskými na straně druhé"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Když situace vyžaduje použití síly, měl byste použít:",
+    "options": [
+      "minimální potřebnou sílu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jakou velikost jednotky znázorňuje 1 čárka nad situační značkou jednotky?",
+    "options": [
+      "rota"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Na stupni ROTA se zpracovávají tyto plánovací dokumenty:",
+    "options": [
+      "plán přípravy roty na čtvrtletí a rozvrh zaměstnání"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jak nazýváme majetek 1. kategorie?",
+    "options": [
+      "Plně uživatelný"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Metodu přípravy příslušníků AČR volí velitel na základě:",
+    "options": [
+      "profesionální úrovně účastníků výcviku, požadovaném výsledku a dostupnosti zdrojů"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Povinnosti kontrolujícího NEJSOU?",
+    "options": [
+      "poučit přiměřeně kontrolovanou osobu o jejich právech a povinnostech"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Chování velitele lze rozlišovat na podpůrné chování a direktivní chování, přičemž jedním z používaných stylů je PŘÍKAZOVÁNÍ. Jeho definice zní?",
+    "options": [
+      "vedoucí zvolí tento styl u podřízených, kteří si neví rady a potřebují vést krok za krokem a přesně určovat co a jak se bude dělat"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Ženijní vojsko patří mezi?",
+    "options": [
+      "síly bojové podpory"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Je-li při služební cestě součástí ubytovací služby v jiném než vojenském ubytovacím zařízení i poskytnutí jídla, které má charakter oběda, krátí se náležející stravné:",
+    "options": [
+      "o 40 %"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Použití smrtící síly dle pravidel RoE je:",
+    "options": [
+      "síla potřebná k zabití nebo způsobení vážného zranění"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Představují vojenské pocty soubor činností, které příslušníci ozbrojených sil provádějí při protokolárních aktech a dalších činnostech v souladu s vojenskými řády a předpisy?",
+    "options": [
+      "Pravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Ze kterých pěti hodnot se skládá kodex etiky vojáka?",
+    "options": [
+      "Odpovědnost a smysl pro povinnost, Obětavost, Odvaha, Věrnost, Čest"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké jsou základní vlastnosti vzdušných sil?",
+    "options": [
+      "rychlost, dostup, dosah"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Účinný dostřel ÚP CZ Bren A1 je:",
+    "options": [
+      "do 500 m"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Existuje více druhů komunikace. Jedním z těchto druhů je tzv. intrapersonální komunikace, která označuje?",
+    "options": [
+      "vnitřní komunikaci jednoho člověka v myšlenkách"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jakými faktory organizace se zabývá analýza SWOT?",
+    "options": [
+      "Silné stránky, slabé stránky, příležitosti a hrozby"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Z hlediska intenzity můžeme provést průzkum dvěma způsoby?",
+    "options": [
+      "normálně – podrobně"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi prvky upevňované pořadovou přípravou patří:",
+    "options": [
+      "a. Vojenské vystupování"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Každý, kdo se ujímá velení, upozorní vojáky (jednotku) návěštím:",
+    "options": [
+      "a. „Na můj povel“"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Chemické zabezpečení zahrnuje 3 základní opatření?",
+    "options": [
+      "d. Monitorování radiační a chemické situace, Ochrana osob a materiálu, Dekontaminace"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Do hodnostního sboru praporčíků nepatří?",
+    "options": [
+      "b. Rotný"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co tvoří základní úroveň psychologické pomoci?",
+    "options": [
+      "a. Pomoc sám sobě a pomoc od kolegů a nejbližšího okolí"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Chování velitele lze rozlišovat na podpůrné chování (což lze brát jako orientaci na lidi) a direktivní chování (které odpovídá orientaci na úkol), přičemž jedním z používaných stylů je PODPOROVÁNÍ. Jeho definice zní:",
+    "options": [
+      "c. vedoucí volí tento styl v situaci, kdy se podřízení naučili zvládat své konflikty sami proto může vedoucí přejít k tomuto stylu."
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Kdy vypukla druhá světová válka?",
+    "options": [
+      "d. 1. září 1939"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Dojde – li ve služebním vztahu k porušení práv a povinností při výkonu služby a voják se domáhá, aby bylo upuštěno od tohoto jednání:",
+    "options": [
+      "a. nesmí být pro tyto skutečnosti voják jakýmkoli způsobem postihován nebo znevýhodňován"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Údržba zbraní po použití se provádí:",
+    "options": [
+      "c. Bezprostředně po použití"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi pasivní opatření PVO u roty nepatří:",
+    "options": [
+      "b. maskování, klamání;"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Která osoba je nejdůležitější při rozhodovacím procesu?",
+    "options": [
+      "a. Velitel"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Pluk průzkumu a elektronického boje pPzEB má hlavní velitelství v:",
+    "options": [
+      "b. Opavě"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi hlavní úkoly pozemní PVO nepatří:",
+    "options": [
+      "a. ničení leteckých základen a logistických středisek vzdušných sil nepřítele;"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi součásti systému velení a řízení nepatří:",
+    "options": [
+      "d. skupina simulací"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co bylo hlavním cílem Obrany národa?",
+    "options": [
+      "a. Obnova ČSR"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Ověření splnění podmínek přístupu k informaci stupně utajení Vyhrazené se provádí každých 10 let.",
+    "options": [
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je podstatou zásady rozlišování?",
+    "options": [
+      "d. strany konfliktu jsou povinny rozlišovat mezi civilními osobami a příslušníky ozbrojených sil na straně druhé"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Definice Vzdušných sil:",
+    "options": [
+      "d. druh ozbrojených sil, který je určen k vedení vzdušných operací za pomocí letectva a protivzdušné obrany (Air Force a Air Defence);"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Veškeré pokyny k zajištění bezpečnosti výcviku:",
+    "options": [
+      "d. musí řídící výcviku vydat před zahájením výcviku"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Personálním rozkazem se nerozhoduje o:",
+    "options": [
+      "b. služebním zařazení"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Když situace vyžaduje použití síly, měl byste použít:",
+    "options": [
+      "b. minimální potřebnou sílu"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jak často se provádí základní údržba techniky?",
+    "options": [
+      "d. 2 x za měsíc"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Volací znaky máme:",
+    "options": [
+      "c. Vlastní, oběžníkové, skupinové"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Upravuje ZÁKON č. 224/1999 Sb., o vojácích z povolání (ze dne 19. ledna 2005) ve znění pozdějších úprav vznik, změnu, zánik a obsah služebních poměrů vojáků z povolání?",
+    "options": [
+      "Nepravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jak často se provádí základní údržba techniky?",
+    "options": [
+      "a. 2 x za měsíc"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Po jaké době se automaticky kázeňský trest zahladí?",
+    "options": [
+      "d. po 12 měsících"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Podle vojenské hodností jsou příslušníci hodnostního sboru praporčíků nadřízený:",
+    "options": [
+      "a. všem příslušníkům hodnostních sborů poddůstojníků a mužstva"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co znamená pojem NATINAMDS?",
+    "options": [
+      "a. Integrovaný systém protivzdušné obrany NATO;"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Ve kterém vojenském předpise je podrobně řešena kázeňská pravomoc:",
+    "options": [
+      "d. Zákl – 1"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "První v pořadí práce při údržbě v poli je:",
+    "options": [
+      "d. Dekontaminace a pyrotechnické zabezpečení"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Účelem procesu ZPVZ je uchovat znalosti organizace, tj. přeměnit individuální zkušenosti ve znalosti organizace tak, aby při nepřítomnosti daného odborníka mohli jeho zkušenosti využívat ostatní členové organizace.",
+    "options": [
+      "Pravda"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Na konci 19. století vstoupil do Cizinecké legie?",
+    "options": [
+      "a. Josef Šnejdárek"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Jaké jsou podstatné znaky velitele?",
+    "options": [
+      "d. iniciativa, nedělitelná pravomoc, odpovědnost"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Řízení ve věcech služebního poměru je:",
+    "options": [
+      "d. postup služebního orgánu, jehož účelem je vydání rozhodnutí, jimiž se v určité věci zakládají, mění nebo ruší práva anebo povinnosti konkrétní osoby"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co rozumíte pod pojmem prevence rizikového chování:",
+    "options": [
+      "b. režimová opatření, poradenské služby, situační prevence a kontrolní činnosti týkající se činné služby vojáků"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Hodnocení jednotlivých zaměstnání provádí:",
+    "options": [
+      "a. řídící zaměstnání v jejich závěru"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Chemické zabezpečení zahrnuje 3 základní opatření?",
+    "options": [
+      "b. Monitorování radiační a chemické situace, Ochrana osob a materiálu, Dekontaminace"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mapa, mapový soulep se skládá na formát:",
+    "options": [
+      "d. A4"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Co je to šikanování:",
+    "options": [
+      "b. je vše, co mně ponižuje, tedy co jakýmkoli způsobem snižuje moji lidskou důstojnost"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Do kolika úrovní (ROLE) je členěna zdravotnická služba v AČR?",
+    "options": [
+      "c. 4"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Mezi prvky verbální komunikace NEPATŘÍ?",
+    "options": [
+      "c. mimika"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Charakteristika palebných úkolů (stupňů vyřazení cíle):",
+    "options": [
+      "a. S letálním účinkem (zničit, umlčet, rušit), s neletálním účinkem (obtěžovat, zbořit, zadýmit, zapálit, osvětlit)"
+    ],
+    "correctAnswers": [0]
+  },
+  {
+    "question": "Existuje více druhů komunikace. Jedním z nich je tzv. masová komunikace, která označuje?",
+    "options": [
+      "c. jednosměrnou komunikaci k většímu počtu osob"
+    ],
+    "correctAnswers": [0]
+  }   
+  ];
+
+    let currentQuestionIndex = 0;
+    let score = 0; // Track the points
+    let shuffledQuizData = shuffleArray(quizData); // Shuffle questions initially
+    let incorrectAnswers = []; // To store questions answered incorrectly
+
+    // Shuffle helper function
+    function shuffleArray(array) {
+      return array
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value);
+    }
+
+    // Initialize Quiz UI
+    function loadQuestion() {
+      const questionContainer = document.getElementById('question-container');
+      const optionsContainer = document.getElementById('options-container');
+      const feedbackContainer = document.getElementById('feedback-container');
+      const questionCounter = document.getElementById('question-counter');
+      
+      // Update question counter
+      questionCounter.textContent = `Question: ${currentQuestionIndex + 1} of ${shuffledQuizData.length}`;
+      
+      // Clear previous options and feedback
+      optionsContainer.innerHTML = '';
+      feedbackContainer.innerHTML = '';
+      
+      const currentQuestion = shuffledQuizData[currentQuestionIndex];
+      questionContainer.textContent = currentQuestion.question;
+
+      // Shuffle options for the current question
+      const shuffledOptions = shuffleArray(currentQuestion.options);
+      shuffledOptions.forEach((option, index) => {
+        const optionButton = document.createElement('button');
+        optionButton.textContent = option;
+        optionButton.classList.add('option');
+
+        // Check if this option is the correct answer based on shuffled position
+        optionButton.onclick = () => checkAnswer(currentQuestion.options.indexOf(option), optionButton);
+        optionsContainer.appendChild(optionButton);
+      });
+    }
+
+    // Check if selected answer is correct and show feedback
+    function checkAnswer(selectedIndex, selectedButton) {
+      const feedbackContainer = document.getElementById('feedback-container');
+      const correctAnswers = shuffledQuizData[currentQuestionIndex].correctAnswers;
+      const optionsContainer = document.getElementById('options-container');
+      const pointCounter = document.getElementById('point-counter');
+      
+      if (correctAnswers.includes(selectedIndex)) {
+        feedbackContainer.textContent = 'Correct!';
+        feedbackContainer.style.color = 'green';
+        selectedButton.classList.add('correct');
+        
+        // Increment score for a correct answer
+        score++;
+        pointCounter.textContent = `Points: ${score}`;
+      } else {
+        feedbackContainer.textContent = 'Incorrect!';
+        feedbackContainer.style.color = 'red';
+        selectedButton.classList.add('incorrect');
+
+        // Highlight the correct answer
+        Array.from(optionsContainer.children).forEach((button, index) => {
+          if (correctAnswers.includes(shuffledQuizData[currentQuestionIndex].options.indexOf(button.textContent))) {
+            button.classList.add('correct');
+          }
+        });
+
+        // Record incorrect answer for summary
+        incorrectAnswers.push({
+          question: shuffledQuizData[currentQuestionIndex].question,
+          correctAnswer: shuffledQuizData[currentQuestionIndex].options[correctAnswers[0]]
+        });
+      }
+
+      // Move to the next question after a short delay
+      setTimeout(nextQuestion, 1000);
+    }
+
+    // Load next question or show final message if quiz is complete
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < shuffledQuizData.length) {
+        loadQuestion();
+      } else {
+        showSummary();
+      }
+    }
+
+    // Show summary of incorrect answers
+    function showSummary() {
+      const quizContainer = document.getElementById('quiz-container');
+      quizContainer.innerHTML = '<h2>Quiz Complete! Thank you for participating.</h2>';
+      
+      const pointCounter = document.createElement('p');
+      pointCounter.textContent = `Final Score: ${score} out of ${shuffledQuizData.length}`;
+      quizContainer.appendChild(pointCounter);
+
+      if (incorrectAnswers.length > 0) {
+        const summaryContainer = document.createElement('div');
+        summaryContainer.id = 'summary-container';
+        summaryContainer.innerHTML = '<h3>Summary of Incorrect Answers:</h3>';
+
+        incorrectAnswers.forEach(item => {
+          const summaryItem = document.createElement('p');
+          summaryItem.innerHTML = `<strong>Question:</strong> ${item.question}<br>
+                                   <strong>Correct Answer:</strong> ${item.correctAnswer}`;
+          summaryContainer.appendChild(summaryItem);
+        });
+
+        quizContainer.appendChild(summaryContainer);
+      } else {
+        quizContainer.innerHTML += '<p>Well done! You got all answers correct!</p>';
+      }
+
+      // Add the custom message at the end
+      const messageContainer = document.createElement('p');
+      messageContainer.innerHTML = `
+        <p>Pokud vám test pomohl, zvažte lehký příspěvek<br>
+        <a href="https://shorturl.at/EQkTU" target="_blank">https://shorturl.at/EQkTU</a><br>
+        Splnit úkol</p>
+      `;
+      quizContainer.appendChild(messageContainer);
+    }
+
+    // Start the quiz
+    document.addEventListener('DOMContentLoaded', loadQuestion);
+  </script>
+
+</body>
+</html>
